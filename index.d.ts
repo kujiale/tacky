@@ -1,4 +1,4 @@
 export * from './typings/index';
 export * from './typings/interfaces';
 
-declare module 'sticky';
+declare module 'sticky-core';

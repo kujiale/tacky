@@ -4,9 +4,9 @@ module.exports = {
   entry: ['./es/index.js'],
   output: {
     library: {
-      commonjs: 'sticky',
-      amd: 'sticky',
-      root: 'Sticky'
+      commonjs: 'sticky-core',
+      amd: 'sticky-core',
+      root: 'StickyCore'
     },
     libraryTarget: 'umd'
   },

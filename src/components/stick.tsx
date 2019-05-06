@@ -16,7 +16,7 @@ let countId = 0;
 
 export function stick() {
   return (Target: React.ComponentClass): React.ComponentClass => {
-    const displayName: string = Target.displayName || Target.name || '@@sticky_component';
+    const displayName: string = Target.displayName || Target.name || 'STICKY_component';
     const target = Target.prototype || Target;
     const baseRender = target.render;
 
@@ -47,7 +47,7 @@ export function stick() {
         /*
          * 1. Trigger action on target component didMount is faster than subscribe listeners.
          * 2. React 17, component rendering is async, might have been interrupted.
-         * sticky must fetch latest state manually to solve the problems above.
+         * sticky-core must fetch latest state manually to solve the problems above.
          */
         this.refreshView();
       }

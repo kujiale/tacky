@@ -1,5 +1,5 @@
 {
-  "name": "sticky",
+  "name": "sticky-core",
   "version": "1.0.0",
   "description": "react state management framework",
   "main": "./lib/index.js",
@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:kujiale/sticky.git"
+    "url": "git@github.com:kujiale/sticky-core.git"
   },
   "files": [
     "lib/",
@@ -38,7 +38,8 @@
     "mobx-react",
     "vuex",
     "front-end",
-    "sticky"
+    "sticky",
+    "sticky-core"
   ],
   "author": "feifan <feifan@qunhemail.com>",
   "license": "MIT",
