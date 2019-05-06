@@ -60,7 +60,7 @@ Sticky.render(<StickyComp />, '#app');
 [如何评价数据流管理框架 redux？](https://www.zhihu.com/question/38591713)
 
 ### react-redux 架构图
-![redux](//qhstaticssl.kujiale.com/as/ddae6a4d54ba1e65b5833508fd59ff5c/redux.png)
+![redux](https://qhstaticssl.kujiale.com/as/ddae6a4d54ba1e65b5833508fd59ff5c/redux.png)
 
 ### dva
 **dva** 是基于 **redux** 的状态管理框架，但它不仅仅是个状态管理框架，还包含了 cli、router 等能力，配合 **umi** 这套整体解决方案，看起来对于快速搭建应用还不错，它的能力非常强大，集合了多个框架再封装，几乎不怎么再需要添加其他三方库了，不过因为直接依赖了一些三方库，更新维护成本和难度还是挺高的，在社区上不算是很活跃，概念也非常多，适合一些对 redux 系列库比较熟悉的开发者。
@@ -68,7 +68,7 @@ Sticky.render(<StickyComp />, '#app');
 [如何评价前端应用框架 dva？](https://www.zhihu.com/question/51831855?from=profile_question_card)
 
 ### dva架构图
-![dva](//qhstaticssl.kujiale.com/as/99322f8bdbfcaa47da9ce3cdd5854075/dva.png)
+![dva](https://qhstaticssl.kujiale.com/as/99322f8bdbfcaa47da9ce3cdd5854075/dva.png)
 
 ### mobx-react
 **mobx**（以下所有代指 **mobx-react**）和 **vue** 的写法有相似之处。很多人说，**mobx-react** 是给 **vue** 的狂热粉丝用来写 **react** 的，这个说法很有趣，但在实际普通 web 业务开发中，不可否认它们的写法确实更无脑也更方便，很惊艳很容易上手，概念也比较少，还是挺适合大部分 web 项目的。不过会比较难测试、难调试，流程复杂的项目自描述能力也比较差，更容易写出过程式代码，扩展和生态都不算是很好，但 mobx 的作者更新还是比较频繁，现在能力也越来越强大了。
@@ -76,13 +76,13 @@ Sticky.render(<StickyComp />, '#app');
 [如何评价数据流管理框架 mobx？](https://www.zhihu.com/question/52219898)
 
 ### mobx-react架构图
-![mobx](//qhstaticssl.kujiale.com/as/654ae258534c4b8c8f5b21f8f1282e52/mobx.png)
+![mobx](https://qhstaticssl.kujiale.com/as/654ae258534c4b8c8f5b21f8f1282e52/mobx.png)
 
 ### vuex
 **vuex** 是 **vue** 的状态管理框架，整个流程上的理念基本和 **redux** 没有太大区别，主要的区别是在 **vue** 中可以直接更新 state，不需要拷贝，因为这个过程并没有像 reducer 纯函数那样具有明确的输入输出，所以 **vuex** 给它起了个名字，叫做 mutation，因为概念上任何一次相同的输入都得到相同的输出才更符合 reducer 纯函数的特性，所以“突变”更加适合 **vuex** 中的更新行为。
 
 ### vuex架构图
-![vuex](//qhstaticssl.kujiale.com/as/e738c068c874a74d0192c83b039980e9/vuex.png)
+![vuex](https://qhstaticssl.kujiale.com/as/e738c068c874a74d0192c83b039980e9/vuex.png)
 
 ### sticky-core
 **sticky-core** 也是一个状态管理框架，它的灵感主要还是来源于以上框架，**sticky-core** 当时设计的初衷只是想尽可能统一公司的状态管理框架，用友好易懂的方式满足一部分人的使用习惯和需求，把一些优秀框架的思想融入进来强化整合功能，并提供一些周边工具来进一步提效，你要说有什么颠覆那是很难的，不过是站在巨人的肩膀上折腾罢了。
@@ -106,7 +106,7 @@ Sticky.render(<StickyComp />, '#app');
 - 友好的文档和最佳实践，对于没有用过状态管理框架的新手来说，还算比较容易上手
 
 ### sticky-core架构图
-![sticky-core](//qhstaticssl.kujiale.com/as/9eb079eaa108e03f947cd8a88097deaf/sticky.png)
+![sticky-core](https://qhstaticssl.kujiale.com/as/9eb079eaa108e03f947cd8a88097deaf/sticky.png)
 
 ## 使用说明
 
@@ -462,7 +462,7 @@ let ctx = {
 ## 最佳实践
 
 ### 架构图
-![framework](//qhstaticssl.kujiale.com/as/2232c5fc6a39cc05732ad9fd7a99703a/bp-framework.png)
+![framework](https://qhstaticssl.kujiale.com/as/2232c5fc6a39cc05732ad9fd7a99703a/bp-framework.png)
 
 ### 目录结构设计
 ```
