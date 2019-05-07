@@ -4,7 +4,6 @@
     "module": "es6",
     "noImplicitAny": false,
     "declaration": true,
-    "declarationDir": "./typings",
     "strictNullChecks": true,
     "allowJs": false,
     "jsx": "react",
@@ -18,7 +17,6 @@
     "downlevelIteration": true,
     "watch": false,
     "target": "es5",
-    "outDir": "./ts",
     "moduleResolution": "node",
     "lib": [
       "dom",
@@ -26,10 +24,11 @@
     ]
   },
   "include": [
-    "src/**/*"
+    "packages/**/src/**/*"
   ],
   "exclude": [
     "node_modules",
-    "test"
+    "**/node_modules/**/*",
+    "**/__tests__/**/*"
   ]
 }

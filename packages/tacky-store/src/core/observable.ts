@@ -5,7 +5,7 @@ import { setterBeforeHook, setterAfterHook } from '../hooks/setter';
 import { NAMESPACE } from "../const/symbol";
 import { Domain } from "./domain";
 import { fail } from "../utils/error";
-import { isObject } from "util";
+import { isObject } from '../utils/common';
 
 class Observable {
   value: any = null;

@@ -1,45 +1,17 @@
 {
-  "name": "sticky-core",
+  "name": "tacky",
   "version": "1.0.0",
-  "description": "React state management framework",
-  "main": "./lib/index.js",
-  "module": "./es/index.js",
-  "types": "./index.d.ts",
+  "description": "Lightweight front-end framework based on react",
   "scripts": {
-    "test": "jest --forceExit --coverage --verbose",
-    "test:watch": "npm run test -- --watchAll",
-    "build:ts": "rm -rf ts && tsc -target es2018",
-    "build:es": "rm -rf es && npm run build:ts && npx babel ts --out-dir es",
-    "build:lib": "rm -rf lib && npm run build:ts && cross-env BABEL_ENV=commonjs npx babel ts --out-dir lib",
-    "build:watch": "tsc -w -target es2018 & npx babel ts -w --out-dir es",
-    "build:umd": "webpack --mode='development' -o dist/sticky-core.js",
-    "build:umd:min": "webpack --mode='production' -o dist/sticky-core.min.js",
-    "build:all": "npm run build:es && npm run build:lib && npm run build:umd && npm run build:umd:min && npm run copy:all",
-    "pub": "npm run build:all && npm publish",
-    "copy:all": "npm run copy-doc",
-    "copy-doc": "cp docs/README.md ./README.md"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:kujiale/sticky-core.git"
+    "url": "git@github.com:kujiale/tacky.git"
   },
-  "files": [
-    "lib/",
-    "es/",
-    "index.d.ts",
-    "typings"
-  ],
   "keywords": [
     "framework",
     "react",
-    "redux",
-    "react-redux",
-    "mobx",
-    "mobx-react",
-    "vuex",
-    "front-end",
-    "sticky",
-    "sticky-core"
+    "front-end"
   ],
   "author": "feifan <feifan@qunhemail.com>",
   "license": "MIT",
@@ -55,14 +27,15 @@
     "@babel/preset-env": "^7.3.1",
     "@babel/runtime": "^7.3.4",
     "@types/jest": "^23.3.7",
+    "@types/node": "^12.0.0",
     "@types/react": "^16.4.6",
     "@types/react-dom": "^16.0.6",
     "cross-env": "^5.2.0",
     "jest": "^23.4.1",
+    "lerna": "^3.13.4",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "ts-jest": "^23.0.1",
     "typescript": "^2.9.2"
-  },
-  "dependencies": {}
+  }
 }
