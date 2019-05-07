@@ -1,5 +1,5 @@
 # sticky-core
-<!-- [![pipeline status](https://gitlab.qunhequnhe.com/fe/packages/sticky/badges/master/pipeline.svg)](https://gitlab.qunhequnhe.com/fe/packages/sticky/pipelines) -->
+[![pipeline status](https://img.shields.io/travis/com/kujiale/sticky-core/master.svg?style=flat-square)](https://travis-ci.com/kujiale/sticky-core)
 [![npm version](https://img.shields.io/npm/v/sticky-core.svg?style=flat-square)](https://www.npmjs.com/package/sticky-core)
 [![npm downloads](https://img.shields.io/npm/dm/sticky-core.svg?style=flat-square)](https://www.npmjs.com/package/sticky-core)
 <!-- [![coverage report](https://gitlab.qunhequnhe.com/fe/packages/sticky/badges/master/coverage.svg)](http://fe-runner.qunhequnhe.com/gzip/qunhe-sticky/coverage/lcov-report/index.html) -->
