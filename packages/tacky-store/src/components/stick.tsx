@@ -16,12 +16,12 @@ let countId = 0;
 
 export function stick() {
   return (Target: React.ComponentClass): React.ComponentClass => {
-    const displayName: string = Target.displayName || Target.name || '@@sticky_component';
+    const displayName: string = Target.displayName || Target.name || 'TACKY_COMPONENT';
     const target = Target.prototype || Target;
     const baseRender = target.render;
 
     target.render = function () {
-      const id = this.props['@@STICKY__componentInstanceUid'];
+      const id = this.props['@@TACKY__componentInstanceUid'];
       collector.start(id);
       const result = baseRender.call(this);
       collector.end();
@@ -47,7 +47,7 @@ export function stick() {
         /*
          * 1. Trigger action on target component didMount is faster than subscribe listeners.
          * 2. React 17, component rendering is async, might have been interrupted.
-         * sticky must fetch latest state manually to solve the problems above.
+         * TACKY must fetch latest state manually to solve the problems above.
          */
         this.refreshView();
       }
@@ -61,7 +61,7 @@ export function stick() {
       render() {
         const props = {
           ...this.props,
-          '@@STICKY__componentInstanceUid': this.componentInstanceUid,
+          '@@TACKY__componentInstanceUid': this.componentInstanceUid,
         };
         return (
           <ErrorBoundary>

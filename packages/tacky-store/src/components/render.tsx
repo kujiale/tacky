@@ -6,7 +6,7 @@ import effectMiddleware from '../middlewares/effect'
 import loggerMiddleware from '../middlewares/logger'
 import { ctx } from '../const/config'
 import { compose } from '../utils/compose';
-import StickyTree from '../core/stateTree';
+import TackyStoreTree from '../core/stateTree';
 
 let started: boolean = false;
 
@@ -29,14 +29,14 @@ export function render(
     let composeEnhancers = compose;
 
     if (process.env.NODE_ENV !== 'production') {
-      // Sticky dev tools extension support.
+      // Tacky dev tools extension support.
     }
 
     const enhancer = composeEnhancers(...enhancers);
 
     createStore(enhancer);
     // load all domain
-    StickyTree.loadAll();
+    TackyStoreTree.loadAll();
   }
 
   started = true;

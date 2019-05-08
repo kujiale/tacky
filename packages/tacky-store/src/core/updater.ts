@@ -1,7 +1,7 @@
 import { store } from './store';
 import { NAMESPACE, CURRENT_MATERIAL_TYPE } from '../const/symbol';
 import { bind } from '../utils/common';
-import { Reducer, Mutation, MaterialType, StickyDescriptorValue, BabelDescriptor } from '../interfaces';
+import { Reducer, Mutation, MaterialType, BabelDescriptor } from '../interfaces';
 import { invariant } from '../utils/error';
 
 function createReducer(target, name, original) {

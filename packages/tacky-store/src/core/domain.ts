@@ -53,7 +53,7 @@ export class Domain {
     const target = Object.getPrototypeOf(this);
     uid += 1;
     target[CURRENT_MATERIAL_TYPE] = MaterialType.Mutation;
-    const domainName = target.constructor.name || 'STICKY_DOMAIN';
+    const domainName = target.constructor.name || 'TACKY_DOMAIN';
     const namespace = `${domainName}@@${uid}`;
     this[NAMESPACE] = namespace;
     StateTree.initInstanceStateTree(namespace, this);

@@ -2,7 +2,7 @@ import { ctx } from '../const/config'
 import { store } from './store';
 import { NAMESPACE, CURRENT_MATERIAL_TYPE } from '../const/symbol';
 import { bind } from '../utils/common';
-import { Effect, MaterialType, StickyDescriptorValue, BabelDescriptor } from '../interfaces';
+import { Effect, MaterialType, TackyDescriptorValue, BabelDescriptor } from '../interfaces';
 import { invariant } from '../utils/error';
 
 function createEffect(target, name, original) {
@@ -19,10 +19,10 @@ function createEffect(target, name, original) {
   };
 }
 
-export function effect(target: Object, name: string, descriptor: BabelDescriptor<Effect>): BabelDescriptor<StickyDescriptorValue> | undefined {
+export function effect(target: Object, name: string, descriptor: BabelDescriptor<Effect>): BabelDescriptor<TackyDescriptorValue> | undefined {
   invariant(
     ctx.middleware.effect,
-    'If you want to use @effect decorator, please turn on the built-in effect middleware. By \"Sticky.config(...)\".'
+    'If you want to use @effect decorator, please turn on the built-in effect middleware. By \"config(...)\".'
   );
 
   invariant(!!descriptor, 'The descriptor of the @effect handler have to exist.');

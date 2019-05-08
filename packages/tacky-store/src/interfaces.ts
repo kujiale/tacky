@@ -42,7 +42,7 @@ export interface Effect {
   (...restPayload: any[]): Promise<void>
 }
 
-export interface StickyDescriptorValue {
+export interface TackyDescriptorValue {
   (...payload: any[]): void
 }
 

@@ -3,7 +3,7 @@ import { NAMESPACE, CURRENT_MATERIAL_TYPE } from '../const/symbol';
 import { Domain } from './domain';
 import { simpleClone } from '../utils/common';
 
-class StickyGlobalStateTree {
+class TackyGlobalStateTree {
   globalStateTree: GlobalStateTree | object = {};
   defaultStateTree: WeakMap<Domain, object> = new WeakMap();
 
@@ -76,4 +76,4 @@ class StickyGlobalStateTree {
   }
 }
 
-export default new StickyGlobalStateTree();
+export default new TackyGlobalStateTree();
