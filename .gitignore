@@ -2,6 +2,7 @@
 .DS_Store
 .difflintfiles
 .idea
+lerna-debug.log*
 npm-debug.log*
 node_modules
 .npmrc
