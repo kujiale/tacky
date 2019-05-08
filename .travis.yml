@@ -3,6 +3,7 @@ cache:
   yarn: true
 node_js:
   - 8.11.1
+if: tag IS blank
 script:
   - lerna bootstrap
   - lerna run test

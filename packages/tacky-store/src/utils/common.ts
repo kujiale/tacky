@@ -64,7 +64,7 @@ function isMergeableObject(val) {
 }
 
 function emptyTarget(val) {
-  return Array.isArray(val) ? [] : {}
+  return Array.isArray(val) ? [] : {};
 }
 
 function cloneIfNecessary(value, optionsArgument) {
