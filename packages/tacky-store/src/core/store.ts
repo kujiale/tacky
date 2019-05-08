@@ -5,7 +5,7 @@ import differ from './differ';
 import { shallowEqual, deepMerge } from '../utils/common';
 import StateTree from './stateTree';
 
-export let store: Store
+export let store: Store;
 
 export function createStore(enhancer: (createStore: any) => Store) {
   if (enhancer) {
