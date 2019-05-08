@@ -1,6 +1,6 @@
 {
   "name": "@tacky/store",
-  "version": "1.0.2-alpha.4",
+  "version": "1.0.2",
   "description": "State management framework based on react",
   "main": "./lib/index.js",
   "module": "./es/index.js",
