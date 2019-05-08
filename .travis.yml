@@ -7,4 +7,4 @@ script:
   - yarn
   - lerna run test
   - lerna run build:all
-  # - lerna publish from-git
+  - lerna publish from-git
