@@ -2,8 +2,7 @@
   "name": "tacky",
   "version": "1.0.0",
   "description": "Lightweight front-end framework based on react",
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git@github.com:kujiale/tacky.git"
@@ -36,6 +35,8 @@
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "ts-jest": "^23.0.1",
-    "typescript": "^2.9.2"
+    "typescript": "^2.9.2",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.2"
   }
 }

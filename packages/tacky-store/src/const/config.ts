@@ -7,7 +7,7 @@ export let ctx: ConfigCtx = {
     effect: true
   },
   devTool: false
-}
+};
 
 export function config(conf: ConfigCtx) {
   ctx = deepMerge(ctx, conf)
