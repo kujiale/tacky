@@ -45,8 +45,7 @@ export function stick() {
           this.refreshView();
         }, this.componentInstanceUid);
         /*
-         * 1. Trigger action on target component didMount is faster than subscribe listeners.
-         * 2. React 17, component rendering is async, might have been interrupted.
+         * Trigger action on target component didMount is faster than subscribe listeners.
          * TACKY must fetch latest state manually to solve the problems above.
          */
         this.refreshView();
