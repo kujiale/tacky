@@ -7,4 +7,5 @@ script:
   - lerna bootstrap
   - lerna run test
   - lerna run build:all
+  - cp .npmrc.template $HOME/.npmrc
   - lerna publish from-git --yes

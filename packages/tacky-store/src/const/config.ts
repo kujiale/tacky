@@ -10,5 +10,5 @@ export let ctx: ConfigCtx = {
 };
 
 export function config(conf: ConfigCtx) {
-  ctx = deepMerge(ctx, conf)
+  ctx = deepMerge(ctx, conf);
 }
