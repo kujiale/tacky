@@ -393,7 +393,7 @@ Tacky.render(<Layout />, '#app', () => {
   // ReactDOM.render 的 callback
 });
 ```
-当然如果有需要，也可以在同一个页面的不同节点 render 多个应用，但他们本质上会共享 domain，因为 store 只会初始化一次，如果要销毁或重置状态，**@tacky/store** 会提供对应的 API，如果要隔离相同 domain 的状态，就必须新建一个 class 或声明普通的成员属性。
+当然如果有需要，也可以在同一个页面的不同节点 render 多个应用，但他们本质上会共享 domain，因为 store 只会初始化一次，如果要销毁或重置状态，**@tacky/store** 会提供对应的 API
 
 ### middleware
 ```typescript
