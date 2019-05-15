@@ -70,5 +70,8 @@
   },
   "bugs": {
     "url": "https://github.com/kujiale/tacky/issues"
+  },
+  "dependencies": {
+    "hoist-non-react-statics": "^3.3.0"
   }
 }
