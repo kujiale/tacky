@@ -5,6 +5,9 @@ import { setterBeforeHook } from '../hooks/setter';
 import { observableStateFactory } from './domain';
 import StateTree from './stateTree';
 
+/**
+ * @state decorator, making the state observable.
+ */
 export function state() {
   return function (target, property, descriptor) {
     // typescript only: (exp: @state() name: string = 'someone';)

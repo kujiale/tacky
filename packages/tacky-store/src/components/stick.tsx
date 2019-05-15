@@ -1,4 +1,5 @@
 import * as React from 'react';
+import hoistNonReactStatics from 'hoist-non-react-statics';
 import ErrorBoundary from './ErrorBoundary';
 import { store } from '../core/store';
 import { COMPONENT_INSTANCE_UID } from '../const/symbol';
@@ -14,6 +15,9 @@ interface State {
 
 let countId = 0;
 
+/**
+ * Returns a high order component with auto refresh feature.
+ */
 export function stick() {
   return (Target: React.ComponentClass): React.ComponentClass => {
     const displayName: string = Target.displayName || Target.name || 'TACKY_COMPONENT';
@@ -28,7 +32,7 @@ export function stick() {
       return result;
     }
 
-    return class extends React.Component<Props, State> {
+    class Stick extends React.PureComponent<Props, State> {
       unsubscribeHandler?: () => void;
       componentInstanceUid: string = `@@${displayName}__${++countId}`;
 
@@ -69,5 +73,7 @@ export function stick() {
         )
       }
     }
+
+    return hoistNonReactStatics(Stick, Target);
   }
 }

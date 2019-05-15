@@ -48,6 +48,9 @@ export function observableStateFactory({
   return observableStateTree.get(currentInstance)[property];
 }
 
+/**
+ * Framework base class 'Domain'. Do some initial operations when domain instantiate.
+ */
 export class Domain {
   constructor() {
     const target = Object.getPrototypeOf(this);

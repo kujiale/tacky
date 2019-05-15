@@ -9,6 +9,9 @@ export let ctx: ConfigCtx = {
   devTool: false
 };
 
+/**
+ * framework global config method.
+ */
 export function config(conf: ConfigCtx) {
   ctx = deepMerge(ctx, conf);
 }

@@ -19,6 +19,9 @@ function createEffect(target, name, original) {
   };
 }
 
+/**
+ * @effect decorator, handle some async process.
+ */
 export function effect(target: Object, name: string, descriptor: BabelDescriptor<Effect>): BabelDescriptor<TackyDescriptorValue> | undefined {
   invariant(
     ctx.middleware.effect,

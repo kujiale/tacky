@@ -4,6 +4,9 @@ import { fail } from '../utils/error';
 
 export const middlewares: Array<Middleware> = [];
 
+/**
+ * Add middleware.
+ */
 export function use(middleware: Middleware | Array<Middleware>) {
   const arr = Array.isArray(middleware) ? middleware : [middleware];
   middlewares.push(...arr);

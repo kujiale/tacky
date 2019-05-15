@@ -10,6 +10,9 @@ import TackyStoreTree from '../core/stateTree';
 
 let started: boolean = false;
 
+/**
+ * Includes render on dom, init built-in middleware, create store, load domain global state and so on.
+ */
 export function render(
   component: React.ReactElement<any>,
   querySelector: string,

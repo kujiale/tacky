@@ -18,6 +18,9 @@ function createReducer(target, name, original) {
   }
 }
 
+/**
+ * @reducer decorator, update state by reducer styling.
+ */
 export function reducer(target: Object, name: string, descriptor: BabelDescriptor<any>): BabelDescriptor<any> | undefined {
   invariant(!!descriptor, 'The descriptor of the @reducer handler have to exist.');
 
@@ -53,6 +56,9 @@ function createMutation(target, name, original) {
   };
 }
 
+/**
+ * @mutation decorator, update state by mutation styling.
+ */
 export function mutation(target: Object, name: string, descriptor: BabelDescriptor<any>): BabelDescriptor<any> | undefined {
   invariant(!!descriptor, 'The descriptor of the @mutation handler have to exist.');
 
