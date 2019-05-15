@@ -9,4 +9,4 @@ script:
   - lerna run test
   - lerna run build:all
   - cp .npmrc.template $HOME/.npmrc
-  - lerna publish --yes
+  - lerna publish from-git --yes
