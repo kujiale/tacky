@@ -6,8 +6,6 @@ node_js:
 
 stages:
   - test
-  - name: build
-    if: tag =~ ^@tacky
   - name: deploy
     if: tag =~ ^@tacky
 
@@ -17,11 +15,9 @@ jobs:
       script:
         - lerna bootstrap
         - lerna run test
-    - stage: build
+    - stage: deploy
       script:
         - lerna bootstrap
         - lerna run build:all
-    - stage: deploy
-      script:
         - cp .npmrc.template $HOME/.npmrc
         - lerna publish from-git --yes

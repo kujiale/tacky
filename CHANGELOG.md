@@ -8,7 +8,7 @@
 > - :house:      [Internal]
 > - :nail_care:  [Polish]
 
-## 1.0.8 (2019-06-05)
+## 1.0.9 (2019-06-05)
 
 #### :rocket: New Feature
 * `@tacky/store`
