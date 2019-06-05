@@ -3,12 +3,14 @@ cache:
   yarn: true
 node_js:
   - 8.11.1
+
 stages:
   - test
   - name: build
     if: tag =~ ^@tacky
   - name: deploy
     if: tag =~ ^@tacky
+
 jobs:
   include:
     - stage: test
@@ -17,6 +19,7 @@ jobs:
         - lerna run test
     - stage: build
       script:
+        - lerna bootstrap
         - lerna run build:all
     - stage: deploy
       script:
