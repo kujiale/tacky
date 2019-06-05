@@ -3,10 +3,22 @@ cache:
   yarn: true
 node_js:
   - 8.11.1
-if: tag IS blank
-script:
-  - lerna bootstrap
-  - lerna run test
-  - lerna run build:all
-  - cp .npmrc.template $HOME/.npmrc
-  - lerna publish from-git --yes
+stages:
+  - test
+  - name: build
+    if: tag IS present AND branch = master
+  - name: deploy
+    if: tag IS present AND branch = master
+jobs:
+  include:
+    - stage: test
+      script:
+        - lerna bootstrap
+        - lerna run test
+    - stage: build
+      script:
+        - lerna run build:all
+    - stage: deploy
+      script:
+        - cp .npmrc.template $HOME/.npmrc
+        - lerna publish from-git --yes
