@@ -12,7 +12,7 @@ export default class ErrorBoundary extends React.Component {
     this.setState({
       hasError: true,
       error
-    })
+    });
   }
 
   render() {
