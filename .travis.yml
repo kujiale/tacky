@@ -6,9 +6,9 @@ node_js:
 stages:
   - test
   - name: build
-    if: (tag IS present) AND (branch = master)
+    if: (tag =~ ^@tacky) AND (branch = master)
   - name: deploy
-    if: (tag IS present) AND (branch = master)
+    if: (tag =~ ^@tacky) AND (branch = master)
 jobs:
   include:
     - stage: test
