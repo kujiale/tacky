@@ -6,6 +6,7 @@ import { mutation, reducer } from './core/updater';
 import { effect } from './core/effect';
 import { state } from './core/state';
 import { Domain } from './core/domain';
+import { init } from './core/init';
 
 // Proxy、Reflect、Symbol、Promise、WeakMap
 // "plugins": [
@@ -23,6 +24,7 @@ export default {
   config,
   state,
   Domain,
+  init,
 }
 
 export {
@@ -35,4 +37,5 @@ export {
   config,
   state,
   Domain,
+  init,
 }

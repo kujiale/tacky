@@ -38,7 +38,7 @@ export function render(
     const enhancer = composeEnhancers(...enhancers);
 
     createStore(enhancer);
-    // load all domain
+    // load all domain global state from instance
     TackyStoreTree.loadAll();
   }
 
