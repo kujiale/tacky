@@ -19,16 +19,16 @@
 | @tacky/dev-tool       | - | 浏览器端的辅助开发调试扩展工具 |
 
 ## 文档列表
-* [@tacky/store](zh-cn/store.md)
-* [@tacky/processor](zh-cn/processor.md)
-* [@tacky/router](zh-cn/router.md)
-* [@tacky/api](zh-cn/api.md)
-* [@tacky/pattern](zh-cn/pattern.md)
-* [@tacky/access](zh-cn/access.md)
-* [@tacky/cloud-api](zh-cn/cloud-api.md)
-* [@tacky/cli](zh-cn/cli.md)
-* [@tacky/snippet](zh-cn/snippet.md)
-* [@tacky/dev-tool](zh-cn/dev-tool.md)
+* [@tacky/store](zh-cn/store.md){:target="_blank"}
+* [@tacky/processor](zh-cn/processor.md){:target="_blank"}
+* [@tacky/router](zh-cn/router.md){:target="_blank"}
+* [@tacky/api](zh-cn/api.md){:target="_blank"}
+* [@tacky/pattern](zh-cn/pattern.md){:target="_blank"}
+* [@tacky/access](zh-cn/access.md){:target="_blank"}
+* [@tacky/cloud-api](zh-cn/cloud-api.md){:target="_blank"}
+* [@tacky/cli](zh-cn/cli.md){:target="_blank"}
+* [@tacky/snippet](zh-cn/snippet.md){:target="_blank"}
+* [@tacky/dev-tool](zh-cn/dev-tool.md){:target="_blank"}
 
 ## 问题
 暂时先发我邮件. (feifan@qunhemail.com)
