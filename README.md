@@ -25,7 +25,7 @@ Visit [tacky official website](https://kujiale.github.io/tacky/#/en-us/).
 Send email to me temporary. (feifan@qunhemail.com)
 
 ## Changelog
-Detailed changes for each release are documented in the [changelog](CHANGELOG.md).
+Detailed changes for each release are documented in the [changelog](https://kujiale.github.io/tacky/#/CHANGELOG).
 
 ## License
 [MIT](http://opensource.org/licenses/MIT)
