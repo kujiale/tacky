@@ -21,8 +21,22 @@ function createReducer(target, name, original) {
 /**
  * @reducer decorator, update state by reducer styling.
  */
-export function reducer(target: Object, name: string, descriptor: BabelDescriptor<any>): BabelDescriptor<any> | undefined {
-  invariant(!!descriptor, 'The descriptor of the @reducer handler have to exist.');
+export function reducer(target: Object, name: string, descriptor?: BabelDescriptor<any>): any {
+  // typescript only: @reducer method = () => {}
+  if (!descriptor) {
+    let reducerFunc;
+    Object.defineProperty(target, name, {
+      enumerable: true,
+      configurable: true,
+      get: function () {
+        return reducerFunc;
+      },
+      set: function (original) {
+        reducerFunc = createReducer(target, name, original);
+      },
+    });
+    return;
+  }
 
   // babel/typescript: @reducer method() {}
   if (descriptor.value) {
@@ -59,8 +73,22 @@ function createMutation(target, name, original) {
 /**
  * @mutation decorator, update state by mutation styling.
  */
-export function mutation(target: Object, name: string, descriptor: BabelDescriptor<any>): BabelDescriptor<any> | undefined {
-  invariant(!!descriptor, 'The descriptor of the @mutation handler have to exist.');
+export function mutation(target: Object, name: string, descriptor?: BabelDescriptor<any>): any {
+  // typescript only: @mutation method = () => {}
+  if (!descriptor) {
+    let mutationFunc;
+    Object.defineProperty(target, name, {
+      enumerable: true,
+      configurable: true,
+      get: function () {
+        return mutationFunc;
+      },
+      set: function (original) {
+        mutationFunc = createMutation(target, name, original);
+      },
+    });
+    return;
+  }
 
   // babel/typescript: @mutation method() {}
   if (descriptor.value) {

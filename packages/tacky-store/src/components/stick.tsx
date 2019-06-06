@@ -2,7 +2,6 @@ import * as React from 'react';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import ErrorBoundary from './ErrorBoundary';
 import { store } from '../core/store';
-import { COMPONENT_INSTANCE_UID } from '../const/symbol';
 import collector from '../core/collector';
 
 interface Props {
@@ -19,7 +18,7 @@ let countId = 0;
  * Returns a high order component with auto refresh feature.
  */
 export function stick() {
-  return (Target: React.ComponentClass): React.ComponentClass => {
+  return (Target: React.ComponentClass): any => {
     const displayName: string = Target.displayName || Target.name || 'TACKY_COMPONENT';
     const target = Target.prototype || Target;
     const baseRender = target.render;

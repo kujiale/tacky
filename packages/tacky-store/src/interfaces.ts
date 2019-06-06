@@ -42,10 +42,6 @@ export interface Effect {
   (...restPayload: any[]): Promise<void>
 }
 
-export interface TackyDescriptorValue {
-  (...payload: any[]): void
-}
-
 export enum MaterialType {
   Reducer,
   Mutation,

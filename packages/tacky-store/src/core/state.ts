@@ -3,13 +3,13 @@ import { observeObject } from '../utils/observe-object';
 import { invariant } from '../utils/error';
 import { setterBeforeHook } from '../hooks/setter';
 import { observableStateFactory } from './domain';
-import StateTree from './stateTree';
+import { BabelDescriptor } from '../interfaces';
 
 /**
  * @state decorator, making the state observable.
  */
 export function state() {
-  return function (target, property, descriptor) {
+  return function <T>(target: Object, property: string | symbol, descriptor?: BabelDescriptor<T>): any {
     // typescript only: (exp: @state() name: string = 'someone';)
     if (!descriptor) {
       const raw = undefined;
@@ -50,10 +50,10 @@ export function state() {
 
     // babel only: (exp: @state() name = 'someone';)
     invariant(
-      descriptor.initializer,
+      !!descriptor.initializer,
       'Your current environment don\'t support \"descriptor.initializer\" class property decorator, please make sure your babel plugin version.'
     );
-    const raw = descriptor.initializer.call(this);
+    const raw = descriptor.initializer!.call(this);
 
     return {
       enumerable: true,

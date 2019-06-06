@@ -2,7 +2,7 @@ import { ctx } from '../const/config'
 import { store } from './store';
 import { NAMESPACE, CURRENT_MATERIAL_TYPE } from '../const/symbol';
 import { bind } from '../utils/common';
-import { Effect, MaterialType, TackyDescriptorValue, BabelDescriptor } from '../interfaces';
+import { Effect, MaterialType, BabelDescriptor } from '../interfaces';
 import { invariant } from '../utils/error';
 
 function createEffect(target, name, original) {
@@ -22,13 +22,27 @@ function createEffect(target, name, original) {
 /**
  * @effect decorator, handle some async process.
  */
-export function effect(target: Object, name: string, descriptor: BabelDescriptor<Effect>): BabelDescriptor<TackyDescriptorValue> | undefined {
+export function effect(target: Object, name: string | symbol, descriptor?: BabelDescriptor<any>): any {
   invariant(
     ctx.middleware.effect,
     'If you want to use @effect decorator, please turn on the built-in effect middleware. By \"config(...)\".'
   );
 
-  invariant(!!descriptor, 'The descriptor of the @effect handler have to exist.');
+  // typescript only: @effect method = async () => {}
+  if (!descriptor) {
+    let effectFunc;
+    Object.defineProperty(target, name, {
+      enumerable: true,
+      configurable: true,
+      get: function () {
+        return effectFunc;
+      },
+      set: function (original) {
+        effectFunc = createEffect(target, name, original);
+      },
+    });
+    return;
+  }
 
   // babel/typescript: @effect method() {}
   if (descriptor.value) {
