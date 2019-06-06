@@ -1,13 +1,10 @@
-# tacky
+# @tacky/store
 [![pipeline status](https://img.shields.io/travis/com/kujiale/tacky/master.svg?style=flat-square)](https://travis-ci.com/kujiale/tacky)
 [![npm version](https://img.shields.io/npm/v/@tacky/store.svg?style=flat-square)](https://www.npmjs.com/package/@tacky/store)
 [![npm downloads](https://img.shields.io/npm/dm/@tacky/store.svg?style=flat-square)](https://www.npmjs.com/package/@tacky/store)
 
 ## 介绍
-**tacky** 是一个基于 **react** 的轻量级前端框架，目前只有一个 **@tacky/store** 状态管理框架，以下文档都是针对这个框架的
-
-### 谁在用？
-- [酷家乐](https://www.kujiale.com/)
+**@tacky/store** 是一个基于 **react** 的轻量级状态管理框架
 
 ### 快速上手
 一个最简单的例子：
@@ -51,63 +48,6 @@ import Layout from './component';
 Tacky.render(<Layout />, '#app');
 ```
 
-## 框架说明
-以下简单介绍几个业界比较流行的框架和 **@tacky/store** 框架，让不了解状态管理的童鞋可以快速找到自己适合的框架。
-
-### react-redux
-**react-redux** 是比较经典的状态管理框架，最优秀的地方在于可扩展性和可预测性，个人使用感受来说适合一些复杂稳定的业务，并且还是比较考验架构设计的，**redux**（以下代指 **react-redux**） 相对来说还是给了开发者比较多折腾的空间，核心代码不多，扩展能力强，但直接裸用 **redux** 开发链路较长，心智负担较多，效率不算很高。
-
-[如何评价数据流管理框架 redux？](https://www.zhihu.com/question/38591713)
-
-### react-redux 架构图
-![redux](https://qhstaticssl.kujiale.com/as/ddae6a4d54ba1e65b5833508fd59ff5c/redux.png)
-
-### dva
-**dva** 是基于 **redux** 的状态管理框架，但它不仅仅是个状态管理框架，还包含了 cli、router 等能力，配合 **umi** 这套整体解决方案，看起来对于快速搭建应用还不错，它的能力非常强大，集合了多个框架再封装，几乎不怎么再需要添加其他三方库了，不过因为直接依赖了一些三方库，更新维护成本和难度还是挺高的，在社区上不算是很活跃，概念也非常多，适合一些对 redux 系列库比较熟悉的开发者。
-
-[如何评价前端应用框架 dva？](https://www.zhihu.com/question/51831855?from=profile_question_card)
-
-### dva架构图
-![dva](https://qhstaticssl.kujiale.com/as/99322f8bdbfcaa47da9ce3cdd5854075/dva.png)
-
-### mobx-react
-**mobx**（以下所有代指 **mobx-react**）和 **vue** 的写法有相似之处。很多人说，**mobx-react** 是给 **vue** 的狂热粉丝用来写 **react** 的，这个说法很有趣，但在实际普通 web 业务开发中，不可否认它们的写法确实更无脑也更方便，很惊艳很容易上手，概念也比较少，还是挺适合大部分 web 项目的。不过会比较难测试、难调试，流程复杂的项目自描述能力也比较差，更容易写出过程式代码，扩展和生态都不算是很好，但 mobx 的作者更新还是比较频繁，现在能力也越来越强大了。
-
-[如何评价数据流管理框架 mobx？](https://www.zhihu.com/question/52219898)
-
-### mobx-react架构图
-![mobx](https://qhstaticssl.kujiale.com/as/654ae258534c4b8c8f5b21f8f1282e52/mobx.png)
-
-### vuex
-**vuex** 是 **vue** 的状态管理框架，整个流程上的理念基本和 **redux** 没有太大区别，主要的区别是在 **vue** 中可以直接更新 state，不需要拷贝，因为这个过程并没有像 reducer 纯函数那样具有明确的输入输出，所以 **vuex** 给它起了个名字，叫做 mutation，因为概念上任何一次相同的输入都得到相同的输出才更符合 reducer 纯函数的特性，所以“突变”更加适合 **vuex** 中的更新行为。
-
-### vuex架构图
-![vuex](https://qhstaticssl.kujiale.com/as/e738c068c874a74d0192c83b039980e9/vuex.png)
-
-### @tacky/store
-**@tacky/store** 也是一个状态管理框架，它的灵感主要还是来源于以上框架，**@tacky/store** 当时设计的初衷只是想尽可能统一公司的状态管理框架，用友好易懂的方式满足一部分人的使用习惯和需求，把一些优秀框架的思想融入进来强化整合功能，并提供一些周边工具来进一步提效，你要说有什么颠覆那是很难的，不过是站在巨人的肩膀上折腾罢了。
-
-- 用法上有点像 **mobx**，采用了 class 和装饰器来设计领域模型
-- 中间件系统沿袭了 **redux**，让更新流程得以扩展
-- 融入了 **vue** 中的计算属性思想，取代 **reselect** 的功能（待做）
-- 融入了 **vuex** 中 mutation 的写法，可以同时支持 reducer 和 mutation 的写法，满足不同人的使用习惯和迁移老项目的需求
-- 提供便利的浏览器持久化功能（待做）
-- 默认提供处理副作用的装饰器，对异步场景更友好
-- 提供各种描述符，来处理竞态和复杂更新流程（待做）
-- 融入了依赖收集思想前置收集状态和模板的依赖关系，来提高后续的更新效率
-- 更加简易的初始化 API，只暴露修改配置的能力
-- 编辑器更友好的提示，减少心智负担
-- 支持 typescript
-- 支持 react hooks（待做）
-- 支持时间旅行
-- 支持一个领域模型多个实例隔离状态的功能
-- 支持重置到初始值、销毁领域模型的功能
-- 底层没有直接依赖任何三方开源框架，是个纯粹、精简的状态管理解决方案，升级维护都比较容易
-- 友好的文档和最佳实践，对于没有用过状态管理框架的新手来说，还算比较容易上手
-
-### @tacky/store架构图
-![@tacky/store](https://qhstaticssl.kujiale.com/as/9eb079eaa108e03f947cd8a88097deaf/sticky.png)
-
 ## 使用说明
 
 ### 安装
@@ -124,11 +64,6 @@ $ yarn add @tacky/store
 
 ### 兼容性
 **@tacky/store** 支持大部分现代浏览器，由于使用了 Proxy API，在 IE 和一些低版本浏览器下不支持，还使用了 Reflect、Symbol、Promise、WeakMap API，如需兼容需要自行引入 polyfill
-
-### 许可证
-[MIT](http://opensource.org/licenses/MIT)
-
-Copyright (c) 2019-present, kujiale, feifan
 
 ## API & 概念
 
@@ -761,3 +696,60 @@ export {
   $tag,
 };
 ```
+
+## 框架特性对比
+以下简单介绍几个业界比较流行的框架和 **@tacky/store** 框架，让不了解状态管理的童鞋可以快速找到自己适合的框架。
+
+### react-redux
+**react-redux** 是比较经典的状态管理框架，最优秀的地方在于可扩展性和可预测性，个人使用感受来说适合一些复杂稳定的业务，并且还是比较考验架构设计的，**redux**（以下代指 **react-redux**） 相对来说还是给了开发者比较多折腾的空间，核心代码不多，扩展能力强，但直接裸用 **redux** 开发链路较长，心智负担较多，效率不算很高。
+
+[如何评价数据流管理框架 redux？](https://www.zhihu.com/question/38591713)
+
+### react-redux 架构图
+![redux](https://qhstaticssl.kujiale.com/as/ddae6a4d54ba1e65b5833508fd59ff5c/redux.png)
+
+### dva
+**dva** 是基于 **redux** 的状态管理框架，但它不仅仅是个状态管理框架，还包含了 cli、router 等能力，配合 **umi** 这套整体解决方案，看起来对于快速搭建应用还不错，它的能力非常强大，集合了多个框架再封装，几乎不怎么再需要添加其他三方库了，不过因为直接依赖了一些三方库，更新维护成本和难度还是挺高的，在社区上不算是很活跃，概念也非常多，适合一些对 redux 系列库比较熟悉的开发者。
+
+[如何评价前端应用框架 dva？](https://www.zhihu.com/question/51831855?from=profile_question_card)
+
+### dva架构图
+![dva](https://qhstaticssl.kujiale.com/as/99322f8bdbfcaa47da9ce3cdd5854075/dva.png)
+
+### mobx-react
+**mobx**（以下所有代指 **mobx-react**）和 **vue** 的写法有相似之处。很多人说，**mobx-react** 是给 **vue** 的狂热粉丝用来写 **react** 的，这个说法很有趣，但在实际普通 web 业务开发中，不可否认它们的写法确实更无脑也更方便，很惊艳很容易上手，概念也比较少，还是挺适合大部分 web 项目的。不过会比较难测试、难调试，流程复杂的项目自描述能力也比较差，更容易写出过程式代码，扩展和生态都不算是很好，但 mobx 的作者更新还是比较频繁，现在能力也越来越强大了。
+
+[如何评价数据流管理框架 mobx？](https://www.zhihu.com/question/52219898)
+
+### mobx-react架构图
+![mobx](https://qhstaticssl.kujiale.com/as/654ae258534c4b8c8f5b21f8f1282e52/mobx.png)
+
+### vuex
+**vuex** 是 **vue** 的状态管理框架，整个流程上的理念基本和 **redux** 没有太大区别，主要的区别是在 **vue** 中可以直接更新 state，不需要拷贝，因为这个过程并没有像 reducer 纯函数那样具有明确的输入输出，所以 **vuex** 给它起了个名字，叫做 mutation，因为概念上任何一次相同的输入都得到相同的输出才更符合 reducer 纯函数的特性，所以“突变”更加适合 **vuex** 中的更新行为。
+
+### vuex架构图
+![vuex](https://qhstaticssl.kujiale.com/as/e738c068c874a74d0192c83b039980e9/vuex.png)
+
+### @tacky/store
+**@tacky/store** 也是一个状态管理框架，它的灵感主要还是来源于以上框架，**@tacky/store** 当时设计的初衷只是想尽可能统一公司的状态管理框架，用友好易懂的方式满足一部分人的使用习惯和需求，把一些优秀框架的思想融入进来强化整合功能，并提供一些周边工具来进一步提效，你要说有什么颠覆那是很难的，不过是站在巨人的肩膀上折腾罢了。
+
+- 用法上有点像 **mobx**，采用了 class 和装饰器来设计领域模型
+- 中间件系统沿袭了 **redux**，让更新流程得以扩展
+- 融入了 **vue** 中的计算属性思想，取代 **reselect** 的功能（待做）
+- 融入了 **vuex** 中 mutation 的写法，可以同时支持 reducer 和 mutation 的写法，满足不同人的使用习惯和迁移老项目的需求
+- 提供便利的浏览器持久化功能（待做）
+- 默认提供处理副作用的装饰器，对异步场景更友好
+- 提供各种描述符，来处理竞态和复杂更新流程（待做）
+- 融入了依赖收集思想前置收集状态和模板的依赖关系，来提高后续的更新效率
+- 更加简易的初始化 API，只暴露修改配置的能力
+- 编辑器更友好的提示，减少心智负担
+- 支持 typescript
+- 支持 react hooks（待做）
+- 支持时间旅行
+- 支持一个领域模型多个实例隔离状态的功能
+- 支持重置到初始值、销毁领域模型的功能
+- 底层没有直接依赖任何三方开源框架，是个纯粹、精简的状态管理解决方案，升级维护都比较容易
+- 友好的文档和最佳实践，对于没有用过状态管理框架的新手来说，还算比较容易上手
+
+### @tacky/store架构图
+![@tacky/store](https://qhstaticssl.kujiale.com/as/9eb079eaa108e03f947cd8a88097deaf/sticky.png)

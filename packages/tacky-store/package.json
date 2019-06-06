@@ -64,9 +64,7 @@
     "build:watch": "tsc -w -target es2018 -declarationDir ./typings -types node -outDir ./ts & npx babel ts -w --out-dir es",
     "build:umd": "npx webpack --mode='development' -o dist/tacky-store.js",
     "build:umd:min": "npx webpack --mode='production' -o dist/tacky-store.min.js",
-    "build:all": "npm run build:es && npm run build:lib && npm run build:umd && npm run build:umd:min && npm run copy:all",
-    "copy:all": "npm run copy-doc",
-    "copy-doc": "cp ../../docs/README.md ../../README.md"
+    "build:all": "npm run build:es && npm run build:lib && npm run build:umd && npm run build:umd:min"
   },
   "bugs": {
     "url": "https://github.com/kujiale/tacky/issues"

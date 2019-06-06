@@ -19,7 +19,7 @@
 | @tacky/dev-tool       | - | Browser DevTools extension |
 
 ## Documentation
-Visit [tacky official website](https://kujiale.github.io/tacky/#/en-us/).
+Waiting to translation.
 
 ## Questions
 Send email to me temporary. (feifan@qunhemail.com)
