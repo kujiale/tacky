@@ -19,16 +19,16 @@
 | @tacky/dev-tool       | - | 浏览器端的辅助开发调试扩展工具 |
 
 ## 文档列表
-* [@tacky/store](zh-cn/store.md){:target="_blank"}
-* [@tacky/processor](zh-cn/processor.md){:target="_blank"}
-* [@tacky/router](zh-cn/router.md){:target="_blank"}
-* [@tacky/api](zh-cn/api.md){:target="_blank"}
-* [@tacky/pattern](zh-cn/pattern.md){:target="_blank"}
-* [@tacky/access](zh-cn/access.md){:target="_blank"}
-* [@tacky/cloud-api](zh-cn/cloud-api.md){:target="_blank"}
-* [@tacky/cli](zh-cn/cli.md){:target="_blank"}
-* [@tacky/snippet](zh-cn/snippet.md){:target="_blank"}
-* [@tacky/dev-tool](zh-cn/dev-tool.md){:target="_blank"}
+* <a href="https://kujiale.github.io/tacky/#/zh-cn/store" target="_blank">@tacky/store</a>
+* <a href="https://kujiale.github.io/tacky/#/zh-cn/processor" target="_blank">@tacky/processor</a>
+* <a href="https://kujiale.github.io/tacky/#/zh-cn/router" target="_blank">@tacky/router</a>
+* <a href="https://kujiale.github.io/tacky/#/zh-cn/api" target="_blank">@tacky/api</a>
+* <a href="https://kujiale.github.io/tacky/#/zh-cn/pattern" target="_blank">@tacky/pattern</a>
+* <a href="https://kujiale.github.io/tacky/#/zh-cn/access" target="_blank">@tacky/access</a>
+* <a href="https://kujiale.github.io/tacky/#/zh-cn/cloud-api" target="_blank">@tacky/cloud-api</a>
+* <a href="https://kujiale.github.io/tacky/#/zh-cn/cli" target="_blank">@tacky/cli</a>
+* <a href="https://kujiale.github.io/tacky/#/zh-cn/snippet" target="_blank">@tacky/snippet</a>
+* <a href="https://kujiale.github.io/tacky/#/zh-cn/dev-tool" target="_blank">@tacky/dev-tool</a>
 
 ## 问题
 暂时先发我邮件. (feifan@qunhemail.com)
