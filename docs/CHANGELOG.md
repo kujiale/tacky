@@ -8,6 +8,13 @@
 > - :house:      [Internal]
 > - :nail_care:  [Polish]
 
+## 2019-06-06
+@tacky/store 1.0.10 released.
+
+#### :bug: Bug Fix
+* `@tacky/store`
+  * Fix property decorator bug for reducer, mutation and effect.
+
 ## 2019-06-05
 @tacky/store 1.0.9 released.
 

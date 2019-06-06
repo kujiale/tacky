@@ -330,6 +330,20 @@ Tacky.render(<Layout />, '#app', () => {
 ```
 当然如果有需要，也可以在同一个页面的不同节点 render 多个应用，但他们本质上会共享 domain，因为 store 只会初始化一次，如果要销毁或重置状态，**@tacky/store** 会提供对应的 API
 
+### init
+```typescript
+type init = () => void
+```
+你也可以使用 `init` 方法来做纯粹的初始化操作，然后自己渲染到节点上，使用方式如下所示：
+```js
+Tacky.init();
+
+ReactDOM.render(
+  <App />,
+  document.getElementById(mount)
+);
+```
+
 ### middleware
 ```typescript
 type Param = {
