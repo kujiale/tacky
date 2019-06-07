@@ -20,4 +20,4 @@ jobs:
         - lerna bootstrap
         - lerna run build:all
         - cp .npmrc.template $HOME/.npmrc
-        - lerna publish from-git --yes
+        - lerna publish from-package --yes
