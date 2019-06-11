@@ -8,6 +8,14 @@
 > - :house:      [Internal]
 > - :nail_care:  [Polish]
 
+## 2019-06-12
+@tacky/store 1.0.11 released.
+
+#### :rocket: New Feature
+* `@tacky/store`
+  * Decorator support pass param or no param now.
+  * Stick support pass a function component with react hooks.
+
 ## 2019-06-06
 @tacky/store 1.0.10 released.
 

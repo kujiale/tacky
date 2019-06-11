@@ -40,10 +40,35 @@ export default class extends Component {
   }
 }
 
+// function-component.jsx
+import * as React from 'react';
+import { stick } from '@tacky/store';
+import $ins from './@domain';
+
+const Layout = stick(() => {
+  const test = () => {
+    $ins.updateList('aaa');
+  };
+
+  React.useEffect(() => {
+    $ins.updateList('111');
+  }, 'uuid');
+
+  return (
+    <div>
+      <span>{JSON.stringify($ins.list)}</span>
+      <button onClick={test}>add</button>
+    </div>
+  );
+});
+
+export default Layout;
+
 // entry.js
 import React from 'react';
 import Tacky from '@tacky/store';
 import Layout from './component';
+// import Layout from './function-component'; // use function component
 
 Tacky.render(<Layout />, '#app');
 ```
@@ -77,7 +102,7 @@ domain 本质就是一组状态和业务逻辑的聚合，我们称之为一个�
 import { Domain, state, reducer, effect, mutation } from '@tacky/store';
 
 export class MyDomain extends Domain {
-  @state() result = 0;
+  @state result = 0;
 
   @mutation
   isLoaded(result) {
@@ -92,7 +117,7 @@ export class MyDomain extends Domain {
   }
 
   @effect
-  async fetchData() {
+  fetchData = async () => {
     const { result } = await $API.get('/api/balabala');
     this.isLoaded(result);
   }
@@ -123,11 +148,13 @@ $ins2.isLoading; // still be false
 在 **mobx** 中，会用 @observable 的装饰器来表示这是一个响应式状态属性，而在 **@tacky/store** 中，通过 @state 的装饰器来声明，如下代码所示：
 ```js
 export class MyDomain extends Domain {
-  @state() isLoading = false;
+  @state isLoading = false;
   @state() list = [];
 }
 ```
 暂未实现：state 装饰器可传入参数，比如 @state('localStorage', 1000)，可以把状态持久化
+
+> state 装饰器可以加括号传参，也可以不加括号不传参，框架都支持，其他装饰器比如 reducer、mutation、effect、stick 同理
 
 ### reducer & mutation
 在 **redux** 中，我们写的最多的就是 reducer，它是用来处理数据更新操作，传统意义来说，reducer 是一个具有输入输出的纯函数，它更像是一个物料，或是一个早就定制好的流水线，任何相同的输入，一定会得到相同的输出，它的执行不会改变它所在的环境，外部环境也不应该影响它，这种特性似乎非常适合 **react** 数据状态机的思想，每一个 snapshot 都对应着一份数据，数据变了，就产生了新的 snapshot。
@@ -313,6 +340,8 @@ export default class Banner extends React.Component {
 ```
 
 当然你也可以把实例挂载到组件的 props 上来向下传递，这个取决于你是如何设计一个复用的业务组件的，以及复用的粒度是怎么样的，挂载到 props 上复用能力无疑是更好的，但使用者也需要手工“装配”模型和视图了，如果不使用 ts，也会丧失编辑器提示。
+
+> 你也可以将 stick 使用在搭配 react hooks 的函数式组件上，使用方式见快速入门一节
 
 ### render
 ```typescript
