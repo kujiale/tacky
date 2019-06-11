@@ -1,8 +1,8 @@
 import * as React from 'react';
-import hoistNonReactStatics from 'hoist-non-react-statics';
 import ErrorBoundary from './ErrorBoundary';
 import { store } from '../core/store';
 import collector from '../core/collector';
+import { useForceUpdate } from '../utils/hooks';
 
 interface Props {
   [propName: string]: any
@@ -17,9 +17,54 @@ let countId = 0;
 /**
  * Returns a high order component with auto refresh feature.
  */
-export function stick() {
-  return (Target: React.ComponentClass): any => {
+export function stick(...args: any[]) {
+  const decorator = (Target) => {
     const displayName: string = Target.displayName || Target.name || 'TACKY_COMPONENT';
+    // Function component with react hooks
+    if (
+      typeof Target === 'function' &&
+      (!Target.prototype || !Target.prototype.render) &&
+      !Target.prototype.isReactClass &&
+      !React.Component.isPrototypeOf(Target)
+    ) {
+      // function component, no instance, share the same id
+      const componentInstanceUid: string = `@@${displayName}__${++countId}`;
+      const Stick = (props) => {
+        const refreshView = useForceUpdate();
+
+        React.useEffect(() => {
+          const unsubscribeHandler = store.subscribe(() => {
+            refreshView();
+          }, componentInstanceUid);
+
+          return () => {
+            if (unsubscribeHandler) {
+              unsubscribeHandler();
+            }
+          };
+        }, [componentInstanceUid]);
+
+        collector.start(componentInstanceUid);
+        const result = Target(props);
+        collector.end();
+
+        return result;
+      };
+
+      const StickWithErrorBoundary = (props) => {
+        return (
+          <ErrorBoundary>
+            <Stick {...props} />
+          </ErrorBoundary>
+        );
+      };
+      const memoComponent = React.memo(StickWithErrorBoundary);
+
+      copyStaticProperties(Target, memoComponent);
+
+      return memoComponent;
+    }
+
     const target = Target.prototype || Target;
     const baseRender = target.render;
 
@@ -73,6 +118,31 @@ export function stick() {
       }
     }
 
-    return hoistNonReactStatics(Stick, Target);
+    copyStaticProperties(Target, Stick);
+
+    return Stick;
+  };
+
+  if (args.length === 1 && typeof args[0] === 'function') {
+    // @decorator
+    return decorator.apply(null, args as any);
   }
+  // @decorator(args)
+  return decorator;
+}
+
+// based on https://github.com/mridgway/hoist-non-react-statics/blob/master/src/index.js
+const hoistBlackList: any = {
+  $$typeof: true,
+  render: true,
+  compare: true,
+  type: true
+}
+
+function copyStaticProperties(base: any, target: any) {
+  Object.keys(base).forEach(key => {
+    if (base.hasOwnProperty(key) && !hoistBlackList[key]) {
+      Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(base, key)!)
+    }
+  });
 }

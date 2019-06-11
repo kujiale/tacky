@@ -4,12 +4,13 @@ import { invariant } from '../utils/error';
 import { setterBeforeHook } from '../hooks/setter';
 import { observableStateFactory } from './domain';
 import { BabelDescriptor } from '../interfaces';
+import { quacksLikeADecorator } from '../utils/decorator';
 
 /**
  * @state decorator, making the state observable.
  */
-export function state() {
-  return function <T>(target: Object, property: string | symbol, descriptor?: BabelDescriptor<T>): any {
+export function state(...args: any[]) {
+  const decorator = function <T>(target: Object, property: string | symbol, descriptor?: BabelDescriptor<T>): any {
     // typescript only: (exp: @state() name: string = 'someone';)
     if (!descriptor) {
       const raw = undefined;
@@ -85,5 +86,12 @@ export function state() {
         }).set(newVal);
       },
     };
+  };
+
+  if (quacksLikeADecorator(args)) {
+    // @decorator
+    return decorator.apply(null, args as any);
   }
+  // @decorator(args)
+  return decorator;
 }
