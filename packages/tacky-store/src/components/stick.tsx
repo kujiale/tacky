@@ -4,21 +4,16 @@ import { store } from '../core/store';
 import collector from '../core/collector';
 import { useForceUpdate } from '../utils/hooks';
 
-interface Props {
-  [propName: string]: any
-}
-
-interface State {
-  [stateName: string]: any
-}
+interface WithUidProps {
+  '@@TACKY__componentInstanceUid': string;
+};
 
 let countId = 0;
-
 /**
  * Returns a high order component with auto refresh feature.
  */
 export function stick(...args: any[]) {
-  const decorator = (Target) => {
+  const decorator = <P extends object>(Target: React.ComponentType<P>) => {
     const displayName: string = Target.displayName || Target.name || 'TACKY_COMPONENT';
     // Function component with react hooks
     if (
@@ -29,7 +24,7 @@ export function stick(...args: any[]) {
     ) {
       // function component, no instance, share the same id
       const componentInstanceUid: string = `@@${displayName}__${++countId}`;
-      const Stick = (props) => {
+      const Stick: React.FunctionComponent<P> = (props) => {
         const refreshView = useForceUpdate();
 
         React.useEffect(() => {
@@ -45,16 +40,17 @@ export function stick(...args: any[]) {
         }, [componentInstanceUid]);
 
         collector.start(componentInstanceUid);
-        const result = Target(props);
+        const fn = Target as React.FunctionComponent<P>;
+        const result = fn(props);
         collector.end();
 
         return result;
       };
 
-      const StickWithErrorBoundary = (props) => {
+      const StickWithErrorBoundary: React.FunctionComponent<P> = (props) => {
         return (
           <ErrorBoundary>
-            <Stick {...props} />
+            <Stick {...props as P} />
           </ErrorBoundary>
         );
       };
@@ -76,13 +72,9 @@ export function stick(...args: any[]) {
       return result;
     }
 
-    class Stick extends React.PureComponent<Props, State> {
+    class Stick extends React.PureComponent<P & WithUidProps> {
       unsubscribeHandler?: () => void;
       componentInstanceUid: string = `@@${displayName}__${++countId}`;
-
-      constructor(props) {
-        super(props);
-      }
 
       refreshView() {
         this.forceUpdate();
@@ -107,12 +99,12 @@ export function stick(...args: any[]) {
 
       render() {
         const props = {
-          ...this.props,
+          ...this.props as object,
           '@@TACKY__componentInstanceUid': this.componentInstanceUid,
         };
         return (
           <ErrorBoundary>
-            <Target {...props} />
+            <Target {...props as P} />
           </ErrorBoundary>
         )
       }
