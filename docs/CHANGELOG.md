@@ -9,6 +9,13 @@
 > - :nail_care:  [Polish]
 
 ## 2019-06-12
+@tacky/store 1.0.12 released.
+
+#### :bug: Bug Fix
+* `@tacky/store`
+  * Fix `stick()` type error when pass props.
+
+## 2019-06-12
 @tacky/store 1.0.11 released.
 
 #### :rocket: New Feature
