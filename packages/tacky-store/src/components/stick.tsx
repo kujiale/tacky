@@ -37,7 +37,7 @@ export function stick(...args: any[]) {
               unsubscribeHandler();
             }
           };
-        }, [componentInstanceUid]);
+        }, []);
 
         collector.start(componentInstanceUid);
         const fn = Target as React.FunctionComponent<P>;
