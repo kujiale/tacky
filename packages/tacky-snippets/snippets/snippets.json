@@ -1,0 +1,103 @@
+{
+  "Create entry with tacky": {
+		"prefix": "tentry",
+		"body": [
+			"import React from 'react';",
+			"import Tacky from '@tacky/store';",
+			"import '@style/global.scss';",
+			"",
+			"import Layout from './Layout';",
+			"",
+			"async function main() {",
+			"\tTacky.config({",
+			"\t\tdevTool: false,",
+			"\t\tmiddleware: {",
+			"\t\t\tlogger: false,",
+			"\t\t}",
+			"\t});",
+			"\tTacky.render(",
+			"\t\t<Layout />,",
+			"\t\t'#app',",
+			"\t);",
+			"}",
+			"",
+			"main();",
+			""
+		],
+		"description": "Create entry"
+	},
+	"Create Domain": {
+		"prefix": "tdomain",
+		"body": [
+			"import { Domain, state, effect, mutation } from '@tacky/store';",
+			"",
+			"export default class ${1:${TM_FILENAME_BASE/(-|^)(\\w+)(\\..+)?/${2:/capitalize}/g}Domain} extends Domain {",
+			"\t@state() example = '';",
+			"",
+			"\t@mutation",
+			"\tupdateExample(example) {",
+			"\t\tthis.example = example;",
+			"\t}",
+			"",
+			"\t@effect",
+			"\tasync fetch() {",
+			"\t\tthis.updateExample('example');",
+			"\t}",
+			"}",
+			""
+		],
+		"description": "Create Domain"
+	},
+	"Create initDomain": {
+		"prefix": "tinitdomain",
+		"body": [
+			"import User from '@domain/user/user-info';",
+			"",
+			"const \\$user = new User();",
+			"",
+			"export {",
+			"\t\\$user,",
+			"};",
+			""
+		],
+		"description": "Create initDomain"
+	},
+	"Create presenter": {
+		"prefix": "tpresenter",
+		"body": [
+			"import { \\$user } from '../initDomain';",
+			"",
+			"class ${1:${TM_FILENAME_BASE/(-|^)(\\w+)(\\..+)?/${2:/capitalize}/g}Presenter} {",
+			"\teventHandler() {",
+			"\t\tconsole.log(\\$user);",
+			"\t}",
+			"}",
+			"",
+			"export default new ${1:${TM_FILENAME_BASE/(-|^)(\\w+)(\\..+)?/${2:/capitalize}/g}Presenter}();",
+			""
+		],
+		"description": "Create presenter"
+	},
+	"Creates a React component class with tacky": {
+		"prefix": "trcc",
+		"body": [
+			"import React, { Component } from 'react';",
+			"import { stick } from '@tacky/store';",
+			"",
+			"@stick()",
+			"class ${1:${TM_FILENAME_BASE}} extends Component {",
+			"\trender() {",
+			"\t\treturn (",
+			"\t\t\t<div>",
+			"\t\t\t\t$2",
+			"\t\t\t</div>",
+			"\t\t);",
+			"\t}",
+			"}",
+			"",
+			"export default ${1:${TM_FILENAME_BASE}};",
+			""
+		],
+		"description": "Creates a React component class with tacky"
+	}
+}
