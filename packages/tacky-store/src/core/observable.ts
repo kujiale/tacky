@@ -10,7 +10,7 @@ import { isObject } from '../utils/common';
 class Observable {
   value: any = null;
   target: Object = {};
-  currentInstance: Domain | null = null;
+  currentInstance: Domain<any> | null = null;
 
   constructor(raw, target, currentInstance) {
     this.target = target;

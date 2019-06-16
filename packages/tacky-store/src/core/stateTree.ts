@@ -5,7 +5,7 @@ import { simpleClone } from '../utils/common';
 
 class TackyGlobalStateTree {
   globalStateTree: GlobalStateTree | object = {};
-  defaultStateTree: WeakMap<Domain, object> = new WeakMap();
+  defaultStateTree: WeakMap<Domain<any>, object> = new WeakMap();
 
   private updateVal(namespace, type, val) {
     if (!this.globalStateTree[namespace]) {

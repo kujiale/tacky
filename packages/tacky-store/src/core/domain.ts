@@ -51,7 +51,7 @@ export function observableStateFactory({
 /**
  * Framework base class 'Domain'. Do some initial operations when domain instantiate.
  */
-export class Domain {
+export class Domain<S> {
   constructor() {
     const target = Object.getPrototypeOf(this);
     uid += 1;
@@ -77,7 +77,7 @@ export class Domain {
     StateTree.clearAll(this[NAMESPACE]);
   }
 
-  $update(obj: object) {
+  $update<K extends keyof S>(obj: Pick<S, K> | S): void {
     invariant(isObject(obj), 'resetState(...) param type error. Param should be a plain object.');
     this.dispatch(obj);
   }

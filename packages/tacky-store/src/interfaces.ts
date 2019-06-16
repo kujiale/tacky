@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { Domain } from './core/domain';
 
 export type MiddlewareParam = {
@@ -17,7 +16,7 @@ export interface Store {
 }
 
 export interface AtomStateTree {
-  instance: Domain,
+  instance: Domain<any>,
   plainObject: ModuleState,
   default: ModuleState
 }
