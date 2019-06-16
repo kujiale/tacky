@@ -25,6 +25,6 @@ jobs:
         - lerna publish from-package --yes
     - stage: deploy-plugin
       script:
-        - cd ./plugins/tacky-snippets
         - cp .vsce.template $HOME/.vsce
+        - cd ./plugins/tacky-snippets
         - npx vsce publish
