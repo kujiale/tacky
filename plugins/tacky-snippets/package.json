@@ -10,7 +10,7 @@
     "url": "git+https://github.com/kujiale/tacky.git"
   },
   "scripts": {},
-	"publisher": "xinming",
+	"publisher": "feifan",
 	"engines": {
 		"vscode": "^1.28.0"
 	},

@@ -8,6 +8,8 @@ stages:
   - test
   - name: deploy
     if: tag =~ ^@tacky
+  - name: deploy-plugin
+    if: tag =~ ^@plugin
 
 jobs:
   include:
@@ -21,3 +23,8 @@ jobs:
         - lerna run build:all
         - cp .npmrc.template $HOME/.npmrc
         - lerna publish from-package --yes
+    - stage: deploy-plugin
+      script:
+        - cd ./plugins/tacky-snippets
+        - cp .vsce.template $HOME/.vsce
+        - npx vsce publish
