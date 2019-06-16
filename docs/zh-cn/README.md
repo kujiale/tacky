@@ -15,7 +15,7 @@
 | @tacky/access | - | 权限控制库 |
 | @tacky/cloud-api              | - | 基于 Yapi 的云端 api 代码同步 vscode 插件 |
 | @tacky/cli       | - | tacky 项目的命令行工具，包括脚手架等 |
-| @tacky/snippet        | - | vscode snippet 插件 |
+| @tacky/snippet        | [详情见商店](https://marketplace.visualstudio.com/items?itemName=feifan.tacky-snippets#review-details) | vscode snippet 插件 |
 | @tacky/dev-tool       | - | 浏览器端的辅助开发调试扩展工具 |
 
 ## 文档列表

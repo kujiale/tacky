@@ -15,7 +15,7 @@
 | @tacky/access | - | Access control library |
 | @tacky/cloud-api              | - | Cloud api code sync generator based on yapi |
 | @tacky/cli       | - | Project cli tool, include scaffolding |
-| @tacky/snippet        | - | Vscode snippet extension |
+| @tacky/snippet        | [see marketplace](https://marketplace.visualstudio.com/items?itemName=feifan.tacky-snippets#review-details) | Vscode snippet extension |
 | @tacky/dev-tool       | - | Browser DevTools extension |
 
 ## Documentation

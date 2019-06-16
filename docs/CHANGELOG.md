@@ -8,6 +8,13 @@
 > - :house:      [Internal]
 > - :nail_care:  [Polish]
 
+## 2019-06-16
+@tacky/store 1.0.13 released.
+
+#### :bug: Bug Fix
+* `@tacky/store`
+  * Support pass domain state interface.
+
 ## 2019-06-12
 @tacky/store 1.0.12 released.
 
