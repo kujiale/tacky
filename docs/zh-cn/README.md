@@ -1,4 +1,6 @@
-# tacky
+<img src="https://qhstaticssl.kujiale.com/newt/167/image/png/1560751474937/tacky.png" alt="Tacky Logo" width="86" height="86"> Tacky
+======================================
+
 [![pipeline status](https://img.shields.io/travis/com/kujiale/tacky/master.svg?style=flat-square)](https://travis-ci.com/kujiale/tacky)
 
 ## 介绍

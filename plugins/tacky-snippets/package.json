@@ -16,7 +16,8 @@
 	},
 	"categories": [
 		"Snippets"
-	],
+  ],
+  "icon": "https://qhstaticssl.kujiale.com/newt/167/image/png/1560751474937/tacky.png",
 	"contributes": {
 		"snippets": [
       {
