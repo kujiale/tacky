@@ -13,7 +13,7 @@ In order to install an extension you need to launch the Command Pallete (Ctrl + 
 - TypeScript React (.tsx)
 
 ## Usage
-![Create Domain](images/tdomain.gif)
+![Create Domain](https://github.com/kujiale/tacky/raw/master/plugins/tacky-snippets/images/tdomain.gif)
 
 ## snippets
 | Trigger        | Content                                    |
