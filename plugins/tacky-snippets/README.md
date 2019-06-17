@@ -20,6 +20,10 @@ In order to install an extension you need to launch the Command Pallete (Ctrl + 
 |---------------:|--------------------------------------------|
 | `tentry→`      | Create entry with tacky                    |
 | `tdomain→`     | Create Domain                              |
+| `tstate→`      | Create state                               |
+| `tupdate→`     | Update state                               |
+| `tmutation→`   | Create mutation                            |
+| `teffect→`     | Create effect                              |
 | `tinitdomain→` | Create initDomain                          |
 | `tpresenter→`  | Create presenter                           |
-| `trcc→`        | Creates a React component class with tacky |
+| `tcc→`         | Creates a Class Component with tacky       |

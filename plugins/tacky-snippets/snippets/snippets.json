@@ -48,6 +48,40 @@
 		],
 		"description": "Create Domain"
 	},
+	"Create state": {
+		"prefix": "tstate",
+		"body": [
+			"@state() ${1:state} = ${2:initValue};"
+		],
+		"description": "Create state"
+	},
+	"update state": {
+		"prefix": "tupdate",
+		"body": [
+			"this.\\$update({$1});"
+		],
+		"description": "update state"
+	},
+	"Create mutation": {
+		"prefix": "tmutation",
+		"body": [
+			"@mutation",
+			"${1:updateState}(${2:newState}) {",
+			"\tthis.${3:state} = ${2:newState};",
+			"}"
+		],
+		"description": "Create mutation"
+	},
+	"Create effect": {
+		"prefix": "teffect",
+		"body": [
+			"@effect",
+			"async ${1:fetch}() {",
+			"\t${2:body}",
+			"}"
+		],
+		"description": "Create effect"
+	},
 	"Create initDomain": {
 		"prefix": "tinitdomain",
 		"body": [
@@ -78,8 +112,8 @@
 		],
 		"description": "Create presenter"
 	},
-	"Creates a React component class with tacky": {
-		"prefix": "trcc",
+	"Creates a Class Component with tacky": {
+		"prefix": "tcc",
 		"body": [
 			"import React, { Component } from 'react';",
 			"import { stick } from '@tacky/store';",
@@ -98,6 +132,6 @@
 			"export default ${1:${TM_FILENAME_BASE}};",
 			""
 		],
-		"description": "Creates a React component class with tacky"
+		"description": "Creates a Class Component with tacky"
 	}
 }
