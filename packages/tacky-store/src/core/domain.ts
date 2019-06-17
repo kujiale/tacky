@@ -51,7 +51,7 @@ export function observableStateFactory({
 /**
  * Framework base class 'Domain'. Do some initial operations when domain instantiate.
  */
-export class Domain<S> {
+export class Domain<S = {}> {
   constructor() {
     const target = Object.getPrototypeOf(this);
     uid += 1;
