@@ -22,8 +22,12 @@ In order to install an extension you need to launch the Command Pallete (Ctrl + 
 | `tdomain→`     | Create Domain                              |
 | `tstate→`      | Create state                               |
 | `tupdate→`     | Update state                               |
-| `tmutation→`   | Create mutation                            |
+| `tmutation→`   | Create mutation for update state           |
+| `treducer→`    | Create reducer for update state            |
 | `teffect→`     | Create effect                              |
 | `tinitdomain→` | Create initDomain                          |
 | `tpresenter→`  | Create presenter                           |
 | `tcc→`         | Creates a Class Component with tacky       |
+| `tfc→`         | Creates a Function Component with tacky    |
+| `tcpc→`        | Creates a PureComponent with tacky         |
+| `tmiddleware→` | Creates Middleware                         |

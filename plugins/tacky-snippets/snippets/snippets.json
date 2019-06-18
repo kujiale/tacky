@@ -51,16 +51,16 @@
 	"Create state": {
 		"prefix": "tstate",
 		"body": [
-			"@state() ${1:state} = ${2:initValue};"
+			"@state() ${1:state} = ${0:initValue};"
 		],
 		"description": "Create state"
 	},
-	"update state": {
+	"Update state": {
 		"prefix": "tupdate",
 		"body": [
-			"this.\\$update({$1});"
+			"this.\\$update({$0});"
 		],
-		"description": "update state"
+		"description": "Update state"
 	},
 	"Create mutation": {
 		"prefix": "tmutation",
@@ -70,14 +70,24 @@
 			"\tthis.${3:state} = ${2:newState};",
 			"}"
 		],
-		"description": "Create mutation"
+		"description": "Create Mutation for update state"
+	},
+	"Create reducer": {
+		"prefix": "treducer",
+		"body": [
+			"@reducer",
+			"${1:updateState}(state, ${2:newState}) {",
+			"\treturn { ...state, ${2:newState} };$0",
+			"}"
+		],
+		"description": "Create reducer for update state"
 	},
 	"Create effect": {
 		"prefix": "teffect",
 		"body": [
 			"@effect",
 			"async ${1:fetch}() {",
-			"\t${2:body}",
+			"\t$0",
 			"}"
 		],
 		"description": "Create effect"
@@ -103,7 +113,7 @@
 			"",
 			"class ${1:${TM_FILENAME_BASE/(-|^)(\\w+)(\\..+)?/${2:/capitalize}/g}Presenter} {",
 			"\teventHandler() {",
-			"\t\tconsole.log(\\$user);",
+			"\t\treturn \\$user.getInfo();$0",
 			"\t}",
 			"}",
 			"",
@@ -123,7 +133,7 @@
 			"\trender() {",
 			"\t\treturn (",
 			"\t\t\t<div>",
-			"\t\t\t\t$2",
+			"\t\t\t\t$0",
 			"\t\t\t</div>",
 			"\t\t);",
 			"\t}",
@@ -133,5 +143,59 @@
 			""
 		],
 		"description": "Creates a Class Component with tacky"
+	},
+	"Creates a Function Component with tacky": {
+		"prefix": "tfc",
+		"body": [
+			"import React from 'react';",
+			"import { stick } from '@tacky/store';",
+			"",
+			"const ${1:${TM_FILENAME_BASE}} = stick(() => {",
+			"\treturn (",
+			"\t\t<div>",
+			"\t\t\t$0",
+			"\t\t</div>",
+			"\t);",
+			"});",
+			"",
+			"export default ${1:${TM_FILENAME_BASE}};",
+			""
+		],
+		"description": "Creates a Function Component with tacky"
+	},
+	"Creates a PureComponent with tacky": {
+		"prefix": "tcpc",
+		"body": [
+			"import React, { PureComponent } from 'react';",
+			"import { stick } from '@tacky/store';",
+			"",
+			"@stick()",
+			"class ${1:${TM_FILENAME_BASE}} extends PureComponent {",
+			"\trender() {",
+			"\t\treturn (",
+			"\t\t\t<div>",
+			"\t\t\t\t$0",
+			"\t\t\t</div>",
+			"\t\t);",
+			"\t}",
+			"}",
+			"",
+			"export default ${1:${TM_FILENAME_BASE}};",
+			""
+		],
+		"description": "Creates a PureComponent with tacky"
+	},
+	"Creates middleware": {
+		"prefix": "tmiddleware",
+		"body": [
+			"const ${1:${TM_FILENAME_BASE/(-)(\\w+)(\\..+)?/${2:/capitalize}/g}Middleware} = ({ dispatch, getState }) => (next) => (action) => {",
+			"\t$0",
+			"\treturn next(action);",
+			"};",
+			"",
+			"export default ${1:${TM_FILENAME_BASE/(-)(\\w+)(\\..+)?/${2:/capitalize}/g}Middleware};",
+			""
+		],
+		"description": "Creates middleware"
 	}
 }
