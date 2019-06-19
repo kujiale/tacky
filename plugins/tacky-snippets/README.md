@@ -13,13 +13,21 @@ In order to install an extension you need to launch the Command Pallete (Ctrl + 
 - TypeScript React (.tsx)
 
 ## Usage
-![Create Domain](images/tdomain.gif)
+![Create Domain](https://github.com/kujiale/tacky/raw/master/plugins/tacky-snippets/images/tdomain.gif)
 
 ## snippets
 | Trigger        | Content                                    |
 |---------------:|--------------------------------------------|
 | `tentry→`      | Create entry with tacky                    |
 | `tdomain→`     | Create Domain                              |
+| `tstate→`      | Create state                               |
+| `tupdate→`     | Update state                               |
+| `tmutation→`   | Create mutation for update state           |
+| `treducer→`    | Create reducer for update state            |
+| `teffect→`     | Create effect                              |
 | `tinitdomain→` | Create initDomain                          |
 | `tpresenter→`  | Create presenter                           |
-| `trcc→`        | Creates a React component class with tacky |
+| `tcc→`         | Creates a Class Component with tacky       |
+| `tfc→`         | Creates a Function Component with tacky    |
+| `tcpc→`        | Creates a PureComponent with tacky         |
+| `tmiddleware→` | Creates Middleware                         |

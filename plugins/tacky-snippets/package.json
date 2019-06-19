@@ -10,7 +10,8 @@
     "url": "git+https://github.com/kujiale/tacky.git"
   },
   "scripts": {},
-	"publisher": "feifan",
+  "publisher": "feifan",
+  "icon": "https://qhstaticssl.kujiale.com/newt/167/image/png/1560751474937/tacky.png",
 	"engines": {
 		"vscode": "^1.28.0"
 	},
