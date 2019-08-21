@@ -63,8 +63,14 @@ export function stick(...args: any[]) {
 
     const target = Target.prototype || Target;
     const baseRender = target.render;
+    let callback;
+
+    function refreshChildComponentView() {
+      return () => React.Component.prototype.forceUpdate.call(this);
+    }
 
     target.render = function () {
+      callback = refreshChildComponentView.call(this);
       const id = this.props['@@TACKY__componentInstanceUid'];
       collector.start(id);
       const result = baseRender.call(this);
@@ -76,19 +82,15 @@ export function stick(...args: any[]) {
       unsubscribeHandler?: () => void;
       componentInstanceUid: string = `@@${displayName}__${++countId}`;
 
-      refreshView() {
-        this.forceUpdate();
-      }
-
       componentDidMount() {
         this.unsubscribeHandler = store.subscribe(() => {
-          this.refreshView();
+          callback();
         }, this.componentInstanceUid);
         /*
          * Trigger action on target component didMount is faster than subscribe listeners.
          * TACKY must fetch latest state manually to solve the problems above.
          */
-        this.refreshView();
+        callback();
       }
 
       componentWillUnmount() {
