@@ -4,7 +4,7 @@
 [![pipeline status](https://img.shields.io/travis/com/kujiale/tacky/master.svg?style=flat-square)](https://travis-ci.com/kujiale/tacky)
 
 ## Introduction
-**Tacky** is an enterprise-level front-end framework based on react.
+**Tacky** is an enterprise-level front-end framework based on react.(v1.1.0 is in the developing...30% completed)
 
 ## Ecosystem
 | Project | Status | Description |
