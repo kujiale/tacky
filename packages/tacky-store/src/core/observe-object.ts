@@ -1,6 +1,6 @@
-import Observable from '../core/observable';
-import { isObject } from './common';
-import { setterBeforeHook } from '../hooks/setter';
+import Observable from './observable';
+import { isPlainObject } from '../utils/common';
+import { illegalAssignmentCheck } from '../hooks/assignment';
 
 export function observeObjectProperty({
   raw,
@@ -10,7 +10,7 @@ export function observeObjectProperty({
 }) {
   const subVal = raw[property];
 
-  if (isObject(subVal)) {
+  if (isPlainObject(subVal)) {
     for (let prop in subVal) {
       if (subVal.hasOwnProperty(prop)) {
         observeObjectProperty({
@@ -31,10 +31,10 @@ export function observeObjectProperty({
         return observable.get();
       },
       set: function (newVal) {
-        setterBeforeHook({
+        illegalAssignmentCheck({
           target,
         });
-        if (isObject(newVal)) {
+        if (isPlainObject(newVal)) {
           for (let prop in newVal) {
             if (newVal.hasOwnProperty(prop)) {
               observeObjectProperty({

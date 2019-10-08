@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom'
 import { init, isRunning } from '../core/init';
 
 /**
- * Includes render on dom, init built-in middleware, create store, load domain global state and so on.
+ * Includes render on dom, init built-in middleware, create store, load domain global tree and so on.
  */
 export function render(
   component: React.ReactElement<any>,

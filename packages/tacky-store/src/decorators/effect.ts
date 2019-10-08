@@ -1,5 +1,5 @@
 import { ctx } from '../const/config'
-import { store } from './store';
+import { store } from '../core/store';
 import { NAMESPACE, CURRENT_MATERIAL_TYPE } from '../const/symbol';
 import { bind } from '../utils/common';
 import { Effect, MaterialType, BabelDescriptor } from '../interfaces';

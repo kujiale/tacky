@@ -1,4 +1,4 @@
-import { store } from './store';
+import { store } from '../core/store';
 import { NAMESPACE, CURRENT_MATERIAL_TYPE } from '../const/symbol';
 import { bind } from '../utils/common';
 import { Reducer, Mutation, MaterialType, BabelDescriptor } from '../interfaces';

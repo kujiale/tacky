@@ -42,10 +42,10 @@ export interface Effect {
 }
 
 export enum MaterialType {
-  Reducer,
+  Initial,
   Mutation,
+  Update,
   Effect,
-  Noop,
 }
 
 export interface DispatchedAction {
@@ -61,7 +61,12 @@ export interface ConfigCtx {
     logger: boolean,
     effect: boolean
   },
-  devTool: boolean
+  timeTravel: {
+    isActive: boolean,
+    maxStepNumber: number,
+    keepInitialSnapshot: boolean,
+  },
+  devTool: boolean,
 }
 
 export type BabelDescriptor<T> = TypedPropertyDescriptor<T> & { initializer?: () => any }

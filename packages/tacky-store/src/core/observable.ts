@@ -1,14 +1,14 @@
 import collector from "./collector";
 import differ from "./differ";
-import { observeObject } from '../utils/observe-object';
-import { setterBeforeHook, setterAfterHook } from '../hooks/setter';
+import { observeObject } from './observe-object';
+import { illegalAssignmentCheck } from '../hooks/assignment';
 import { NAMESPACE } from "../const/symbol";
 import { Domain } from "./domain";
 import { fail } from "../utils/error";
-import { isObject } from '../utils/common';
+import { isPlainObject } from '../utils/common';
 
-class Observable {
-  value: any = null;
+export default class Observable {
+  value: any = null; // boolean, string, number, undefined, null, instance, array[], plainObject{}
   target: Object = {};
   currentInstance: Domain<any> | null = null;
 
@@ -31,7 +31,7 @@ class Observable {
   }
 
   setterHandler() {
-    differ.collectDiff(true);
+    differ.isDiff(true);
   }
 
   set(newVal) {
@@ -40,7 +40,6 @@ class Observable {
       this.setterHandler();
       this.value = wpVal;
     }
-    setterAfterHook();
   }
 
   arrayProxy(array) {
@@ -48,7 +47,7 @@ class Observable {
 
     return new Proxy(array, {
       set: (target, property, value, receiver) => {
-        setterBeforeHook({
+        illegalAssignmentCheck({
           target: this.target,
         });
         const previous = Reflect.get(target, property, receiver);
@@ -59,7 +58,7 @@ class Observable {
         }
 
         // set value is object
-        if (isObject(next)) {
+        if (isPlainObject(next)) {
           observeObject({ raw: next, target: this.target, currentInstance: this.currentInstance });
         }
         // set value is array
@@ -68,11 +67,8 @@ class Observable {
         }
 
         const flag = Reflect.set(target, property, next);
-        setterAfterHook();
         return flag;
       }
     });
   }
 }
-
-export default Observable;

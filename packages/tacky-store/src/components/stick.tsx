@@ -2,55 +2,54 @@ import * as React from 'react';
 import ErrorBoundary from './ErrorBoundary';
 import { store } from '../core/store';
 import collector from '../core/collector';
-import { useForceUpdate } from '../utils/hooks';
+import { useForceUpdate } from '../utils/react-hooks';
+import generateUUID from '../utils/uuid';
 
 interface WithUidProps {
-  '@@TACKY__componentInstanceUid': string;
+  '<TACKY_COMPONENT_UUID>': string;
 };
 
-let countId = 0;
 /**
  * Returns a high order component with auto refresh feature.
  */
 export function stick(...args: any[]) {
   const decorator = <P extends object>(Target: React.ComponentType<P>) => {
-    const displayName: string = Target.displayName || Target.name || 'TACKY_COMPONENT';
+    const displayName: string = Target.displayName || Target.name || '<TACKY_COMPONENT>';
     // Function component with react hooks
+    function ObservableTarget(props: P) {
+      const refreshView = useForceUpdate();
+
+      React.useEffect(() => {
+        const unsubscribeHandler = store.subscribe(() => {
+          refreshView();
+        }, `${displayName}__${this.uuid}`);
+
+        return () => {
+          if (unsubscribeHandler) {
+            unsubscribeHandler();
+          }
+        };
+      }, []);
+
+      this.uuid = this.uuid || generateUUID();
+      collector.start(this.uuid);
+      const fn = Target as React.FunctionComponent<P>;
+      const result = fn(props);
+      collector.end();
+
+      return result;
+    };
+
     if (
       typeof Target === 'function' &&
       (!Target.prototype || !Target.prototype.render) &&
       !Target.prototype.isReactClass &&
       !React.Component.isPrototypeOf(Target)
     ) {
-      // function component, no instance, share the same id
-      const componentInstanceUid: string = `@@${displayName}__${++countId}`;
-      const Stick: React.FunctionComponent<P> = (props) => {
-        const refreshView = useForceUpdate();
-
-        React.useEffect(() => {
-          const unsubscribeHandler = store.subscribe(() => {
-            refreshView();
-          }, componentInstanceUid);
-
-          return () => {
-            if (unsubscribeHandler) {
-              unsubscribeHandler();
-            }
-          };
-        }, []);
-
-        collector.start(componentInstanceUid);
-        const fn = Target as React.FunctionComponent<P>;
-        const result = fn(props);
-        collector.end();
-
-        return result;
-      };
-
       const StickWithErrorBoundary: React.FunctionComponent<P> = (props) => {
         return (
           <ErrorBoundary>
-            <Stick {...props as P} />
+            <ObservableTarget {...props as P} />
           </ErrorBoundary>
         );
       };
@@ -63,7 +62,7 @@ export function stick(...args: any[]) {
 
     const target = Target.prototype || Target;
     const baseRender = target.render;
-    let callback;
+    let callback: () => void;
 
     function refreshChildComponentView() {
       return () => React.Component.prototype.forceUpdate.call(this);
@@ -71,21 +70,21 @@ export function stick(...args: any[]) {
 
     target.render = function () {
       callback = refreshChildComponentView.call(this);
-      const id = this.props['@@TACKY__componentInstanceUid'];
+      const id = this.props['<TACKY_COMPONENT_UUID>'];
       collector.start(id);
       const result = baseRender.call(this);
       collector.end();
       return result;
     }
 
-    class Stick extends React.PureComponent<P & WithUidProps> {
+    class ObservableTargetComponent extends React.PureComponent<P & WithUidProps> {
       unsubscribeHandler?: () => void;
-      componentInstanceUid: string = `@@${displayName}__${++countId}`;
+      uuid: string;
 
       componentDidMount() {
         this.unsubscribeHandler = store.subscribe(() => {
           callback();
-        }, this.componentInstanceUid);
+        }, this.uuid);
         /*
          * Trigger action on target component didMount is faster than subscribe listeners.
          * TACKY must fetch latest state manually to solve the problems above.
@@ -100,9 +99,10 @@ export function stick(...args: any[]) {
       }
 
       render() {
+        this.uuid = this.uuid || generateUUID();
         const props = {
           ...this.props as object,
-          '@@TACKY__componentInstanceUid': this.componentInstanceUid,
+          '<TACKY_COMPONENT_UUID>': `${displayName}__${this.uuid}`,
         };
         return (
           <ErrorBoundary>
@@ -112,9 +112,9 @@ export function stick(...args: any[]) {
       }
     }
 
-    copyStaticProperties(Target, Stick);
+    copyStaticProperties(Target, ObservableTargetComponent);
 
-    return Stick;
+    return ObservableTargetComponent;
   };
 
   if (args.length === 1 && typeof args[0] === 'function') {

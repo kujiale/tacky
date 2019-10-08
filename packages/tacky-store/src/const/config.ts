@@ -6,7 +6,12 @@ export let ctx: ConfigCtx = {
     logger: process.env.NODE_ENV !== 'production',
     effect: true
   },
-  devTool: false
+  timeTravel: {
+    isActive: false,
+    maxStepNumber: 5,
+    keepInitialSnapshot: false,
+  },
+  devTool: false,
 };
 
 /**

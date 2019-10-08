@@ -1,20 +1,17 @@
-/**
- * Quick object check - this is primarily used to tell
- * Objects from primitive values when we know the value
- * is a JSON-compliant type.
- */
 export function isObject(value: any): boolean {
-  if (value === null || typeof value !== 'object') return false;
-  const proto = Object.getPrototypeOf(value);
-  return proto === Object.prototype || proto === null;
+  return value !== null && typeof value === "object"
 }
 
-export function isPrimitive(value) {
+// {}
+export function isPlainObject(value: any) {
+  if (value === null || typeof value !== "object") return false
+  const proto = Object.getPrototypeOf(value)
+  return proto === Object.prototype || proto === null
+}
+
+// boolean, string, number, undefined, null
+export function isPrimitive(value: any) {
   return value === null || (typeof value !== 'object' && typeof value !== 'function');
-}
-
-export function simpleClone(value) {
-  return JSON.parse(JSON.stringify(value));
 }
 
 // From: https://github.com/facebook/fbjs/blob/c69904a511b900266935168223063dd8772dfc40/packages/fbjs/src/core/shallowEqual.js

@@ -2,8 +2,8 @@ import { Store, DispatchedAction, Reducer, Mutation, MaterialType, AtomStateTree
 import { invariant } from '../utils/error';
 import collector from './collector';
 import differ from './differ';
-import { shallowEqual, deepMerge } from '../utils/common';
-import StateTree from './stateTree';
+import { shallowEqual } from '../utils/common';
+import DomainStore from './domain-store';
 
 export let store: Store;
 
@@ -13,28 +13,28 @@ export function createStore(enhancer: (createStore: any) => Store) {
     return store;
   }
 
-  const componentInstanceUidToListeners = {};
+  const componentUUIDToListeners = {};
   let isUpdating: boolean = false;
 
   function getState(namespace?: string) {
     invariant(!isUpdating, 'You may not call store.getState() while the mutation/reducer is executing.');
 
     if (namespace) {
-      const atom = StateTree.globalStateTree[namespace] as AtomStateTree;
+      const atom = DomainStore.globalStateTree[namespace] as AtomStateTree;
       return atom.plainObject;
     }
 
-    return StateTree.globalStateTree;
+    return DomainStore.globalStateTree;
   }
 
-  function subscribe(listener: Function, componentInstanceUid: string) {
+  function subscribe(listener: Function, uuid: string) {
     let isSubscribed = true;
 
-    if (!componentInstanceUidToListeners[componentInstanceUid]) {
-      componentInstanceUidToListeners[componentInstanceUid] = [];
+    if (!componentUUIDToListeners[uuid]) {
+      componentUUIDToListeners[uuid] = [];
     }
 
-    componentInstanceUidToListeners[componentInstanceUid].push(listener);
+    componentUUIDToListeners[uuid].push(listener);
 
     return function unsubscribe() {
       if (!isSubscribed) {
@@ -43,8 +43,8 @@ export function createStore(enhancer: (createStore: any) => Store) {
 
       isSubscribed = false;
 
-      const index = componentInstanceUidToListeners[componentInstanceUid].indexOf(listener);
-      componentInstanceUidToListeners[componentInstanceUid].splice(index, 1);
+      const index = componentUUIDToListeners[uuid].indexOf(listener);
+      componentUUIDToListeners[uuid].splice(index, 1);
     }
   }
 
@@ -94,7 +94,7 @@ export function createStore(enhancer: (createStore: any) => Store) {
 
     for (let index = 0; index < componentInstanceIds.length; index++) {
       const cid = componentInstanceIds[index];
-      const listeners = componentInstanceUidToListeners[cid] || [];
+      const listeners = componentUUIDToListeners[cid] || [];
       tempListeners = tempListeners.concat(listeners);
     }
 

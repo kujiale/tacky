@@ -1,28 +1,34 @@
-class Collector {
+/**
+ * collect relation map of the dep path key（uuid.a.b.0.d）and the component ids
+ */
+class CollectorStack {
   public dependencyMap = {};
-  private isCollecting = false;
-  private tempComponentInstanceId = null;
+  private componentIdStack: string[] = [];
 
-  start(id) {
-    this.isCollecting = true;
-    this.tempComponentInstanceId = id;
+  start(id: string) {
+    this.componentIdStack.push(id);
   }
 
-  collect(namespace) {
-    if (this.isCollecting) {
-      if (!this.dependencyMap[namespace]) {
-        this.dependencyMap[namespace] = [];
-      }
-      if (this.dependencyMap[namespace].indexOf(this.tempComponentInstanceId) > -1) {
-        return;
-      }
-      this.dependencyMap[namespace].push(this.tempComponentInstanceId);
+  collect(depKey: string) {
+    const stackLength = this.componentIdStack.length;
+    if (!stackLength) {
+      return;
+    }
+    const currentComponentId = this.componentIdStack[stackLength - 1];
+    if (this.dependencyMap[depKey]) {
+      this.dependencyMap[depKey].push(currentComponentId);
+    } else {
+      this.dependencyMap[depKey] = [currentComponentId];
     }
   }
 
   end() {
-    this.isCollecting = false;
+    this.componentIdStack.pop();
+  }
+
+  isCollected() {
+
   }
 }
 
-export default new Collector();
+export default new CollectorStack();
