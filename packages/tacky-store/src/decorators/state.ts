@@ -1,7 +1,6 @@
 import { BabelDescriptor } from '../interfaces';
 import { quacksLikeADecorator } from '../utils/decorator';
 import { Domain } from '../core/domain';
-import { NAMESPACE } from '../const/symbol';
 
 /**
  * state decorator, making the state observable.
@@ -22,7 +21,7 @@ export function state(...args: any[]) {
     };
 
     // typescript only: (exp: @state() name: string = 'someone';)
-    if (!descriptor) {
+    if (descriptor === void 0) {
       return Object.defineProperty(target, property, newDescriptor);
     }
 

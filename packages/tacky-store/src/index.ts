@@ -9,7 +9,7 @@ import { Domain } from './core/domain';
 import { init } from './core/init';
 import { reset } from './core/domain-store';
 
-// Proxy、Reflect、Symbol、Promise
+// Proxy、Reflect、Symbol、Promise、WeakMap、Set
 // "plugins": [
 //   "transform-decorators-legacy",
 //   "transform-class-properties"

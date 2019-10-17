@@ -1,36 +1,38 @@
-import { Store, DispatchedAction, Reducer, Mutation, MaterialType, AtomStateTree } from '../interfaces';
+import { Store, DispatchedAction, Mutation, EMaterialType } from '../interfaces';
 import { invariant } from '../utils/error';
-import collector from './collector';
-import differ from './differ';
-import { shallowEqual } from '../utils/common';
+import { depCollector, historyCollector } from './collector';
+import { shallowEqual, nextTick, deduplicate } from '../utils/common';
 import DomainStore from './domain-store';
+import { ctx } from '../../ts/const/config';
+import * as ReactDOM from 'react-dom';
 
 export let store: Store;
 
 export function createStore(enhancer: (createStore: any) => Store) {
-  if (enhancer) {
+  if (enhancer !== void 0) {
     store = enhancer(createStore);
     return store;
   }
 
   const componentUUIDToListeners = {};
   let isUpdating: boolean = false;
+  let isInBatch: boolean = false;
 
   function getState(namespace?: string) {
-    invariant(!isUpdating, 'You may not call store.getState() while the mutation/reducer is executing.');
+    // invariant(!isUpdating, 'You may not call store.getState() while the mutation/reducer is executing.');
 
-    if (namespace) {
-      const atom = DomainStore.globalStateTree[namespace] as AtomStateTree;
-      return atom.plainObject;
-    }
+    // if (namespace) {
+    //   const atom = DomainStore.globalStateTree[namespace] as AtomStateTree;
+    //   return atom.plainObject;
+    // }
 
-    return DomainStore.globalStateTree;
+    // return DomainStore.globalStateTree;
   }
 
   function subscribe(listener: Function, uuid: string) {
     let isSubscribed = true;
 
-    if (!componentUUIDToListeners[uuid]) {
+    if (componentUUIDToListeners[uuid] === void 0) {
       componentUUIDToListeners[uuid] = [];
     }
 
@@ -49,58 +51,59 @@ export function createStore(enhancer: (createStore: any) => Store) {
   }
 
   function dispatch(action: DispatchedAction) {
+    /**
+     * @todo action name need to record
+     */
     const {
-      // name,
+      name,
       payload,
       type,
       namespace,
       original,
     } = action;
-    let isDifferent = false;
 
-    invariant(!isUpdating, 'Cannot trigger other mutation/reducer while the mutation/reducer is executing.');
+    invariant(!isUpdating, 'Cannot trigger other mutation while the current mutation is executing.');
 
     try {
       isUpdating = true;
-      // reducer
-      if (type === MaterialType.Reducer) {
-        const prevSnapshot = deepMerge({}, StateTree.globalStateTree[namespace].plainObject, { clone: true });
-        const currentReducer = original as Reducer;
-        const nextSnapshot = currentReducer(prevSnapshot, ...payload);
-        StateTree.syncPlainObjectAndInstanceStateTree(namespace, nextSnapshot);
-        isDifferent = !shallowEqual(prevSnapshot, nextSnapshot);
+      if (type !== EMaterialType.MUTATION) {
+        return;
       }
-      // mutation
-      if (type === MaterialType.Mutation) {
-        differ.start();
-        const currentMutation = original as Mutation;
-        currentMutation(...payload);
-        isDifferent = differ.differFlag;
-        differ.end();
-        if (isDifferent) {
-          StateTree.syncPlainObjectStateTreeFromInstance(namespace);
-        }
-      }
+      const currentMutation = original as Mutation;
+      currentMutation(...payload);
     } finally {
       isUpdating = false;
     }
 
-    if (!isDifferent) {
-      return action;
-    }
+    if (!isInBatch) {
+      isInBatch = true;
+      nextTick(() => {
+        const current = historyCollector.currentHistory;
+        depCollector.dependencyMap;
+        if (current !== void 0) {
+          const ids = deduplicate(historyCollector.waitTriggerComponentIds);
+          const tempListeners: Function[] = [];
 
-    const componentInstanceIds: string[] = collector.dependencyMap[namespace] || [];
-    let tempListeners: Function[] = [];
+          for (let index = 0; index < ids.length; index++) {
+            const cid = ids[index];
+            const listeners = componentUUIDToListeners[cid] || [];
+            tempListeners.push(...listeners);
+          }
 
-    for (let index = 0; index < componentInstanceIds.length; index++) {
-      const cid = componentInstanceIds[index];
-      const listeners = componentUUIDToListeners[cid] || [];
-      tempListeners = tempListeners.concat(listeners);
-    }
-
-    for (let index = 0; index < tempListeners.length; index++) {
-      const listener = tempListeners[index];
-      listener();
+          // for (let index = 0; index < tempListeners.length; index++) {
+          //   const listener = tempListeners[index];
+          //   listener();
+          // }
+          ReactDOM.unstable_batchedUpdates(() => {
+            pendingComponents.forEach(component => component.forceUpdate());
+          });
+        }
+        if (ctx.timeTravel.isActive) {
+          historyCollector.save();
+        }
+        historyCollector.endBatch();
+        isInBatch = false;
+      });
     }
 
     return action;

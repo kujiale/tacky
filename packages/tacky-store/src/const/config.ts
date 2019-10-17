@@ -1,5 +1,5 @@
-import { deepMerge } from '../utils/common'
 import { ConfigCtx } from '../interfaces';
+import { deepMerge } from '../utils/deep-merge';
 
 export let ctx: ConfigCtx = {
   middleware: {

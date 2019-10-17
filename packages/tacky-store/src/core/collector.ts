@@ -1,24 +1,38 @@
+import { includes } from '../utils/common';
+import { ctx } from '../const/config';
+
+export interface KeyToComponentIdsMap {
+  [key: string]: string[];
+};
 /**
- * collect relation map of the dep path key（uuid.a.b.0.d）and the component ids
+ * collect relation map of the dep key and the component ids
  */
-class CollectorStack {
-  public dependencyMap = {};
+class DepCollector {
+  public dependencyMap = new WeakMap<object, KeyToComponentIdsMap>();
   private componentIdStack: string[] = [];
 
   start(id: string) {
     this.componentIdStack.push(id);
   }
 
-  collect(depKey: string) {
+  collect(targetKey: object, propKey: string) {
     const stackLength = this.componentIdStack.length;
-    if (!stackLength) {
+    if (stackLength === 0) {
       return;
     }
     const currentComponentId = this.componentIdStack[stackLength - 1];
-    if (this.dependencyMap[depKey]) {
-      this.dependencyMap[depKey].push(currentComponentId);
+    const keyToComponentIdsMap = this.dependencyMap.get(targetKey);
+    if (keyToComponentIdsMap !== void 0) {
+      let idsArray = keyToComponentIdsMap[propKey];
+      if (idsArray !== void 0) {
+        if (!includes(idsArray, currentComponentId)) idsArray.push(currentComponentId);
+      } else {
+        idsArray = [currentComponentId];
+      }
     } else {
-      this.dependencyMap[depKey] = [currentComponentId];
+      this.dependencyMap.set(targetKey, {
+        [propKey]: [currentComponentId],
+      });
     }
   }
 
@@ -26,9 +40,97 @@ class CollectorStack {
     this.componentIdStack.pop();
   }
 
-  isCollected() {
-
+  isObserved(targetKey: object, propKey: string) {
+    const map = this.dependencyMap.get(targetKey);
+    return map !== void 0 && propKey in map;
   }
 }
 
-export default new CollectorStack();
+export const depCollector = new DepCollector();
+
+export const enum EOperationTypes {
+  SET = 'set',
+  ADD = 'add',
+  DELETE = 'delete',
+  CLEAR = 'clear',
+  GET = 'get',
+  HAS = 'has',
+  ITERATE = 'iterate'
+}
+
+export interface KeyToDiffChangeMap {
+  [key: string]: {
+    beforeUpdate: any;
+    didUpdate: any;
+  };
+}
+
+export type History = WeakMap<object, KeyToDiffChangeMap>;
+
+export interface HistoryCollectorPayload {
+  type: EOperationTypes;
+  beforeUpdate: any;
+  didUpdate: any;
+}
+
+/**
+ * collect prop diff history record
+ */
+class HistoryCollector {
+  public currentHistory?: History;
+  public transactionHistories: History[] = [];
+  public waitTriggerComponentIds: string[] = [];
+
+  collect(target: object, key: string, payload: HistoryCollectorPayload) {
+    this.collectComponentId(target, key);
+    const { beforeUpdate, didUpdate } = payload;
+
+    if (this.currentHistory === void 0) {
+      this.currentHistory = new WeakMap();
+    }
+    const keyToDiffChangeMap = this.currentHistory.get(target);
+    if (keyToDiffChangeMap !== void 0) {
+      if (keyToDiffChangeMap[key] !== void 0) {
+        keyToDiffChangeMap[key].didUpdate = didUpdate;
+      } else {
+        keyToDiffChangeMap[key] = {
+          beforeUpdate,
+          didUpdate,
+        };
+      }
+    } else {
+      this.currentHistory.set(target, {
+        [key]: {
+          beforeUpdate,
+          didUpdate,
+        }
+      });
+    }
+  }
+
+  collectComponentId(target: object, key: string) {
+    const keyToComponentIdsMap = depCollector.dependencyMap.get(target);
+    if (keyToComponentIdsMap === void 0) {
+      return;
+    }
+    const idsArray = keyToComponentIdsMap[key];
+    if (idsArray === void 0 || idsArray.length === 0) {
+      return;
+    }
+    this.waitTriggerComponentIds.push(...idsArray);
+  }
+
+  endBatch() {
+    this.currentHistory = void 0;
+    this.waitTriggerComponentIds = [];
+  }
+
+  save() {
+    this.transactionHistories.push(this.currentHistory!);
+    if (this.transactionHistories.length > ctx.timeTravel.maxStepNumber) {
+      this.transactionHistories.shift();
+    }
+  }
+}
+
+export const historyCollector = new HistoryCollector();

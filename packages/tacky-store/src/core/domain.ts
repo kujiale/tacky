@@ -1,69 +1,14 @@
 import { CURRENT_MATERIAL_TYPE, NAMESPACE } from '../const/symbol';
-import { MaterialType, Mutation, AtomStateTree } from '../interfaces';
-import Observable from './observable';
-import { observeObject } from './observe-object';
-import { isPlainObject, bind } from '../utils/common';
+import { EMaterialType } from '../interfaces';
+import { isPlainObject, convert2UniqueString, hasOwn, isObject } from '../utils/common';
 import { invariant } from '../utils/error';
-import { store } from './store';
 import DomainStore from './domain-store';
 import generateUUID from '../utils/uuid';
-import collector from './collector';
-import { differ } from './differ';
+import { depCollector, historyCollector, EOperationTypes } from './collector';
+import { canObserve } from '../utils/decorator';
 
-// function observableStateFactory(v: any) {
-//   // it is an observable already, done
-//   if (isObservable(v)) return v
-
-//   // something that can be converted and mutated?
-//   const res = isPlainObject(v)
-//       ? observable.object(v, arg2, arg3)
-//       : Array.isArray(v)
-//           ? observable.array(v, arg2)
-//           : v
-
-//   // this value could be converted to a new observable data structure, return it
-//   if (res !== v) return res
-// }
-
-// export const observableStateTree = new WeakMap();
-
-// export function createObservableState({
-//   target,
-//   instance,
-//   value,
-// }) {
-//   if (isPlainObject(value)) {
-//     observeObject({
-//       value,
-//       target,
-//       instance,
-//     });
-//   }
-
-//   return new Observable(value, target, instance);
-// }
-
-// export function observableStateFactory({
-//   target,
-//   instance,
-//   property,
-//   value,
-// }) {
-//   if (observableStateTree.get(instance)) {
-//     if (observableStateTree.get(instance)[property]) {
-//       return observableStateTree.get(instance)[property];
-//     }
-//     const observable = createObservableState({ value, target, instance });
-//     observableStateTree.get(instance)[property] = observable;
-
-//     return observableStateTree.get(instance)[property];
-//   }
-//   observableStateTree.set(instance, {});
-//   const observable = createObservableState({ value, target, instance });
-//   observableStateTree.get(instance)[property] = observable;
-
-//   return observableStateTree.get(instance)[property];
-// }
+const proxyCache = new WeakMap<any, any>();
+const rawCache = new WeakMap<any, any>();
 
 /**
  * Framework base class 'Domain', class must be extends this base class which is need to be observable.
@@ -75,8 +20,7 @@ export class Domain<S = {}> {
     const target = Object.getPrototypeOf(this);
     const domainName = target.constructor.name || 'TACKY_DOMAIN';
     const namespace = generateUUID();
-
-    this[CURRENT_MATERIAL_TYPE] = MaterialType.Initial;
+    this[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
     this[NAMESPACE] = namespace;
     DomainStore.init({
       id: namespace,
@@ -86,87 +30,88 @@ export class Domain<S = {}> {
   }
 
   propertyGet(key: string | symbol | number) {
-    const stringKey = (key).toString();
-    collector.collect(stringKey);
-    return this.properties[key];
+    const stringKey = convert2UniqueString(key);
+    const v = this.properties[stringKey];
+
+    depCollector.collect(this, stringKey);
+
+    return isObject(v) ? this.proxyReactive(v) : v;
+  }
+
+  propertySet(key: string | symbol | number, v: any) {
+    const stringKey = convert2UniqueString(key);
+
+    this.illegalAssignmentCheck(this, stringKey);
+    historyCollector.collect(this, stringKey, {
+      type: EOperationTypes.SET,
+      beforeUpdate: this.properties[stringKey],
+      didUpdate: v,
+    });
+    this.properties[stringKey] = v;
+  }
+
+  private proxySet(target: any, key: string | symbol | number, value: any, receiver: any) {
+    const stringKey = convert2UniqueString(key);
+    this.illegalAssignmentCheck(target, stringKey);
+
+    const hadKey = hasOwn(target, key);
+    const oldValue = target[key];
+    const result = Reflect.set(target, key, value, receiver);
+    // do nothing if target is in the prototype chain
+    if (target === proxyCache.get(receiver)) {
+      if (!hadKey) {
+        historyCollector.collect(target, stringKey, {
+          type: EOperationTypes.ADD,
+          beforeUpdate: oldValue,
+          didUpdate: value,
+        });
+      } else if (value !== oldValue) {
+        historyCollector.collect(target, stringKey, {
+          type: EOperationTypes.SET,
+          beforeUpdate: oldValue,
+          didUpdate: value,
+        });
+      }
+    }
+
+    return result;
+  }
+
+  private proxyGet(target: any, key: string | symbol | number, receiver: any) {
+    const res = Reflect.get(target, key, receiver);
+    const stringKey = convert2UniqueString(key);
+
+    depCollector.collect(target, stringKey);
+
+    return isObject(res) ? this.proxyReactive(res) : res;
   }
 
   /**
-   * inner setter, value could be boolean, string, number, undefined, null, instance, array[], plainObject{}
+   * proxy value could be boolean, string, number, undefined, null, custom instance, array[], plainObject{}
+   * @todo: support Map、Set、WeakMap、WeakSet
    */
-  propertySet(key: string | symbol | number, v: any) {
-    const stringKey = (key).toString();
-    this[NAMESPACE]
-
-    if (isCollected(key)) {
-      this.illegalAssignmentCheck();
-    }
-
-    const res = isPlainObject(v)
-      ? this.objectHandler(v)
-      : Array.isArray(v)
-        ? this.arrayHandler(v)
-        : v;
-
-    this.properties[key] = res;
-  }
-
-  is(v: object) {
-    for (let property in v) {
-      if (v.hasOwnProperty(property)) {
-        const value = v[property];
-        if (isPlainObject(value)) {
-
-        }
-      }
-    }
-  }
-
-  objectHandler(v: object) {
+  private proxyReactive(raw: object) {
     const _this = this;
-
-
-    return new Proxy(v, {
-      get: function (target, key, receiver) {
-        const raw = Reflect.get(target, key, receiver);
-
-        return raw;
-      },
-      set: function (target, key, value, receiver) {
-        _this.propertySet(key, value);
-        return Reflect.set(target, key, value, receiver);
-      }
+    // different props use same ref
+    const refProxy = rawCache.get(raw);
+    if (refProxy !== void 0) {
+      return refProxy;
+    }
+    // raw is already a Proxy
+    if (proxyCache.has(raw)) {
+      return raw;
+    }
+    if (!canObserve(raw)) {
+      return raw;
+    }
+    const proxy = new Proxy(raw, {
+      get: _this.proxyGet,
+      set: _this.proxySet,
     });
+    proxyCache.set(proxy, raw);
+    rawCache.set(raw, proxy);
 
-    // new Proxy(v, {
-    //   set: (target, property, value, receiver) => {
-    //     illegalAssignmentCheck({
-    //       target: this.target,
-    //     });
-    //     const previous = Reflect.get(target, property, receiver);
-    //     let next = value;
-
-    //     if (previous !== next) {
-    //       differ.isDiff();
-    //     }
-
-    //     // set value is object
-    //     if (isPlainObject(next)) {
-    //       observeObject({ raw: next, target: this.target, currentInstance: this.currentInstance });
-    //     }
-    //     // set value is array
-    //     if (Array.isArray(next)) {
-    //       next = this.arrayProxy(next);
-    //     }
-
-    //     const flag = Reflect.set(target, property, next);
-    //     return flag;
-    //   }
-    // });
-  }
-
-  arrayHandler(v: any) {
-
+    return proxy;
   }
 
   /**
@@ -201,39 +146,40 @@ export class Domain<S = {}> {
   /**
    * only in @mutation/$update/constructor can assign value to @state, otherwise throw error.
    */
-  illegalAssignmentCheck() {
-    invariant(
-      this[CURRENT_MATERIAL_TYPE] === MaterialType.Initial ||
-      this[CURRENT_MATERIAL_TYPE] === MaterialType.Mutation ||
-      this[CURRENT_MATERIAL_TYPE] === MaterialType.Update,
-      'You cannot assign value to (decorated @state property) by (this.a = \'xxx\';) directly. Please use mutation or $update({}).'
-    );
+  private illegalAssignmentCheck(target: object, stringKey: string) {
+    if (depCollector.isObserved(target, stringKey)) {
+      invariant(
+        this[CURRENT_MATERIAL_TYPE] === EMaterialType.MUTATION ||
+        this[CURRENT_MATERIAL_TYPE] === EMaterialType.UPDATE,
+        'You cannot assign value to (decorated @state property) by (this.a = \'xxx\';) directly. Please use mutation or $update({}).'
+      );
+    }
   }
 
   private dispatch<K extends keyof S>(obj: Pick<S, K> | S) {
-    const target = Object.getPrototypeOf(this);
-    const original = function () {
-      for (const key in obj) {
-        if (obj.hasOwnProperty(key)) {
-          this[key] = obj[key];
-        }
-      }
-    };
-    target[CURRENT_MATERIAL_TYPE] = MaterialType.Update;
-    // update state before render
-    if (!store) {
-      original.call(this);
-      StateTree.syncPlainObjectStateTreeFromInstance(this[NAMESPACE]);
-      target[CURRENT_MATERIAL_TYPE] = MaterialType.Noop;
-      return;
-    }
-    // update state after render
-    store.dispatch({
-      payload: [],
-      type: MaterialType.Mutation,
-      namespace: this[NAMESPACE],
-      original: bind(original, this) as Mutation
-    });
-    target[CURRENT_MATERIAL_TYPE] = MaterialType.Noop;
+  //   const target = Object.getPrototypeOf(this);
+  //   const original = function () {
+  //     for (const key in obj) {
+  //       if (obj.hasOwnProperty(key)) {
+  //         this[key] = obj[key];
+  //       }
+  //     }
+  //   };
+  //   target[CURRENT_MATERIAL_TYPE] = EMaterialType.UPDATE;
+  //   // update state before render
+  //   if (!store) {
+  //     original.call(this);
+  //     StateTree.syncPlainObjectStateTreeFromInstance(this[NAMESPACE]);
+  //     target[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
+  //     return;
+  //   }
+  //   // update state after render
+  //   store.dispatch({
+  //     payload: [],
+  //     type: EMaterialType.MUTATION,
+  //     namespace: this[NAMESPACE],
+  //     original: bind(original, this) as Mutation
+  //   });
+  //   target[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
   }
 }

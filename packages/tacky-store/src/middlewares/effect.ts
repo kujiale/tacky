@@ -1,10 +1,10 @@
-import { Effect, MaterialType, Middleware } from '../interfaces';
+import { Effect, EMaterialType, Middleware } from '../interfaces';
 
 function createEffectMiddleware(): Middleware {
   return ({ dispatch, getState }) => (next: any) => async (action) => {
     const { name, payload, type, namespace, original } = action;
 
-    if (type === MaterialType.Effect) {
+    if (type === EMaterialType.EFFECT) {
       const effect = original as Effect;
       await effect(...payload);
       return;

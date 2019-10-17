@@ -1,9 +1,9 @@
 import * as React from 'react';
 import ErrorBoundary from './ErrorBoundary';
 import { store } from '../core/store';
-import collector from '../core/collector';
 import { useForceUpdate } from '../utils/react-hooks';
 import generateUUID from '../utils/uuid';
+import { depCollector } from '../core/collector';
 
 interface WithUidProps {
   '<TACKY_COMPONENT_UUID>': string;
@@ -25,17 +25,17 @@ export function stick(...args: any[]) {
         }, `${displayName}__${this.uuid}`);
 
         return () => {
-          if (unsubscribeHandler) {
+          if (unsubscribeHandler !== void 0) {
             unsubscribeHandler();
           }
         };
       }, []);
 
       this.uuid = this.uuid || generateUUID();
-      collector.start(this.uuid);
+      depCollector.start(this.uuid);
       const fn = Target as React.FunctionComponent<P>;
       const result = fn(props);
-      collector.end();
+      depCollector.end();
 
       return result;
     };
@@ -71,9 +71,9 @@ export function stick(...args: any[]) {
     target.render = function () {
       callback = refreshChildComponentView.call(this);
       const id = this.props['<TACKY_COMPONENT_UUID>'];
-      collector.start(id);
+      depCollector.start(id);
       const result = baseRender.call(this);
-      collector.end();
+      depCollector.end();
       return result;
     }
 
@@ -89,11 +89,14 @@ export function stick(...args: any[]) {
          * Trigger action on target component didMount is faster than subscribe listeners.
          * TACKY must fetch latest state manually to solve the problems above.
          */
-        callback();
+        /**
+         * @todo need to be confirmed.
+         */
+        // callback();
       }
 
       componentWillUnmount() {
-        if (this.unsubscribeHandler) {
+        if (this.unsubscribeHandler !== void 0) {
           this.unsubscribeHandler();
         }
       }
@@ -135,7 +138,7 @@ const hoistBlackList: any = {
 
 function copyStaticProperties(base: any, target: any) {
   Object.keys(base).forEach(key => {
-    if (base.hasOwnProperty(key) && !hoistBlackList[key]) {
+    if (base.hasOwnProperty(key) && hoistBlackList[key] === void 0) {
       Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(base, key)!)
     }
   });

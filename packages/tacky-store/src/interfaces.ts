@@ -41,17 +41,17 @@ export interface Effect {
   (...restPayload: any[]): Promise<void>
 }
 
-export enum MaterialType {
-  Initial,
-  Mutation,
-  Update,
-  Effect,
+export enum EMaterialType {
+  DEFAULT,
+  MUTATION,
+  UPDATE,
+  EFFECT,
 }
 
 export interface DispatchedAction {
   name?: string,
   payload: any[],
-  type: MaterialType,
+  type: EMaterialType,
   namespace: string,
   original: Reducer | Effect | Mutation
 }
