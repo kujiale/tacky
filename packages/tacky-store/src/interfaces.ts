@@ -1,4 +1,5 @@
 import { Domain } from './core/domain';
+import { Component } from 'react';
 
 export type MiddlewareParam = {
   dispatch: (action: DispatchedAction) => DispatchedAction,
@@ -11,7 +12,7 @@ export interface Middleware {
 
 export interface Store {
   dispatch: (action: DispatchedAction) => DispatchedAction,
-  subscribe: (listener: Function, componentInstanceUid: string) => () => void,
+  subscribe: (listener: Function, componentInstanceUid: Component) => () => void,
   getState: (namespace?: string) => ModuleState | GlobalStateTree
 }
 

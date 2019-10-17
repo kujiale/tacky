@@ -1,17 +1,18 @@
 import { includes } from '../utils/common';
 import { ctx } from '../const/config';
+import { Component } from 'react';
 
 export interface KeyToComponentIdsMap {
-  [key: string]: string[];
+  [key: string]: Component[];
 };
 /**
  * collect relation map of the dep key and the component ids
  */
 class DepCollector {
   public dependencyMap = new WeakMap<object, KeyToComponentIdsMap>();
-  private componentIdStack: string[] = [];
+  private componentIdStack: Component[] = [];
 
-  start(id: string) {
+  start(id: Component) {
     this.componentIdStack.push(id);
   }
 
@@ -79,7 +80,7 @@ export interface HistoryCollectorPayload {
 class HistoryCollector {
   public currentHistory?: History;
   public transactionHistories: History[] = [];
-  public waitTriggerComponentIds: string[] = [];
+  public waitTriggerComponentIds: Component[] = [];
 
   collect(target: object, key: string, payload: HistoryCollectorPayload) {
     this.collectComponentId(target, key);

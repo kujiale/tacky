@@ -1,10 +1,10 @@
 import { Store, DispatchedAction, Mutation, EMaterialType } from '../interfaces';
 import { invariant } from '../utils/error';
-import { depCollector, historyCollector } from './collector';
-import { shallowEqual, nextTick, deduplicate } from '../utils/common';
-import DomainStore from './domain-store';
+import { historyCollector } from './collector';
+import { nextTick, deduplicate, includes } from '../utils/common';
 import { ctx } from '../../ts/const/config';
 import * as ReactDOM from 'react-dom';
+import { Component } from 'react';
 
 export let store: Store;
 
@@ -14,7 +14,7 @@ export function createStore(enhancer: (createStore: any) => Store) {
     return store;
   }
 
-  const componentUUIDToListeners = {};
+  const componentUUIDToListeners: WeakMap<Component, Function[]> = new WeakMap();
   let isUpdating: boolean = false;
   let isInBatch: boolean = false;
 
@@ -29,14 +29,17 @@ export function createStore(enhancer: (createStore: any) => Store) {
     // return DomainStore.globalStateTree;
   }
 
-  function subscribe(listener: Function, uuid: string) {
+  function subscribe(listener: Function, uuid: Component) {
     let isSubscribed = true;
+    const listeners = componentUUIDToListeners.get(uuid);
 
-    if (componentUUIDToListeners[uuid] === void 0) {
-      componentUUIDToListeners[uuid] = [];
+    if (listeners === void 0) {
+      componentUUIDToListeners.set(uuid, [listener]);
+    } else {
+      if (!includes(listeners, listener)) {
+        componentUUIDToListeners.set(uuid, listeners.concat(listener));
+      }
     }
-
-    componentUUIDToListeners[uuid].push(listener);
 
     return function unsubscribe() {
       if (!isSubscribed) {
@@ -45,8 +48,9 @@ export function createStore(enhancer: (createStore: any) => Store) {
 
       isSubscribed = false;
 
-      const index = componentUUIDToListeners[uuid].indexOf(listener);
-      componentUUIDToListeners[uuid].splice(index, 1);
+      if (componentUUIDToListeners.has(uuid)) {
+        componentUUIDToListeners.delete(uuid);
+      }
     }
   }
 
@@ -78,24 +82,21 @@ export function createStore(enhancer: (createStore: any) => Store) {
     if (!isInBatch) {
       isInBatch = true;
       nextTick(() => {
-        const current = historyCollector.currentHistory;
-        depCollector.dependencyMap;
-        if (current !== void 0) {
+        if (historyCollector.waitTriggerComponentIds.length > 0) {
           const ids = deduplicate(historyCollector.waitTriggerComponentIds);
-          const tempListeners: Function[] = [];
+          const pendingListeners: Function[] = [];
 
           for (let index = 0; index < ids.length; index++) {
             const cid = ids[index];
-            const listeners = componentUUIDToListeners[cid] || [];
-            tempListeners.push(...listeners);
+            const listeners = componentUUIDToListeners.get(cid) || [];
+            pendingListeners.push(...listeners);
           }
 
-          // for (let index = 0; index < tempListeners.length; index++) {
-          //   const listener = tempListeners[index];
-          //   listener();
-          // }
           ReactDOM.unstable_batchedUpdates(() => {
-            pendingComponents.forEach(component => component.forceUpdate());
+            for (let index = 0; index < pendingListeners.length; index++) {
+              const listener = pendingListeners[index];
+              listener();
+            }
           });
         }
         if (ctx.timeTravel.isActive) {

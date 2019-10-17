@@ -2,19 +2,14 @@ import * as React from 'react';
 import ErrorBoundary from './ErrorBoundary';
 import { store } from '../core/store';
 import { useForceUpdate } from '../utils/react-hooks';
-import generateUUID from '../utils/uuid';
 import { depCollector } from '../core/collector';
-
-interface WithUidProps {
-  '<TACKY_COMPONENT_UUID>': string;
-};
 
 /**
  * Returns a high order component with auto refresh feature.
  */
 export function stick(...args: any[]) {
   const decorator = <P extends object>(Target: React.ComponentType<P>) => {
-    const displayName: string = Target.displayName || Target.name || '<TACKY_COMPONENT>';
+    // const displayName: string = Target.displayName || Target.name || '<TACKY_COMPONENT>';
     // Function component with react hooks
     function ObservableTarget(props: P) {
       const refreshView = useForceUpdate();
@@ -22,7 +17,7 @@ export function stick(...args: any[]) {
       React.useEffect(() => {
         const unsubscribeHandler = store.subscribe(() => {
           refreshView();
-        }, `${displayName}__${this.uuid}`);
+        }, this);
 
         return () => {
           if (unsubscribeHandler !== void 0) {
@@ -31,8 +26,7 @@ export function stick(...args: any[]) {
         };
       }, []);
 
-      this.uuid = this.uuid || generateUUID();
-      depCollector.start(this.uuid);
+      depCollector.start(this);
       const fn = Target as React.FunctionComponent<P>;
       const result = fn(props);
       depCollector.end();
@@ -70,21 +64,20 @@ export function stick(...args: any[]) {
 
     target.render = function () {
       callback = refreshChildComponentView.call(this);
-      const id = this.props['<TACKY_COMPONENT_UUID>'];
-      depCollector.start(id);
+      depCollector.start(this);
       const result = baseRender.call(this);
       depCollector.end();
       return result;
     }
 
-    class ObservableTargetComponent extends React.PureComponent<P & WithUidProps> {
+    class ObservableTargetComponent extends React.PureComponent<P> {
       unsubscribeHandler?: () => void;
       uuid: string;
 
       componentDidMount() {
         this.unsubscribeHandler = store.subscribe(() => {
           callback();
-        }, this.uuid);
+        }, this);
         /*
          * Trigger action on target component didMount is faster than subscribe listeners.
          * TACKY must fetch latest state manually to solve the problems above.
@@ -102,14 +95,9 @@ export function stick(...args: any[]) {
       }
 
       render() {
-        this.uuid = this.uuid || generateUUID();
-        const props = {
-          ...this.props as object,
-          '<TACKY_COMPONENT_UUID>': `${displayName}__${this.uuid}`,
-        };
         return (
           <ErrorBoundary>
-            <Target {...props as P} />
+            <Target {...this.props as P} />
           </ErrorBoundary>
         )
       }
