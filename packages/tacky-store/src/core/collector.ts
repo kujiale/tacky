@@ -68,6 +68,13 @@ export interface KeyToDiffChangeMap {
 
 export type History = WeakMap<object, KeyToDiffChangeMap>;
 
+export type HistoryIdSet = Set<object>;
+
+export interface HistoryNode {
+  historyKey: HistoryIdSet;
+  history: History;
+}
+
 export interface HistoryCollectorPayload {
   type: EOperationTypes;
   beforeUpdate: any;
@@ -79,17 +86,26 @@ export interface HistoryCollectorPayload {
  */
 class HistoryCollector {
   public currentHistory?: History;
-  public transactionHistories: History[] = [];
+  public currentHistoryIdSet?: HistoryIdSet;
+  public transactionHistories: HistoryNode[] = [];
   public waitTriggerComponentIds: Component[] = [];
 
   collect(target: object, key: string, payload: HistoryCollectorPayload) {
     this.collectComponentId(target, key);
-    const { beforeUpdate, didUpdate } = payload;
 
+    if (!ctx.timeTravel.isActive) {
+      return;
+    }
+
+    const { beforeUpdate, didUpdate } = payload;
+    if (this.currentHistoryIdSet === void 0) {
+      this.currentHistoryIdSet = new Set();
+    }
     if (this.currentHistory === void 0) {
       this.currentHistory = new WeakMap();
     }
     const keyToDiffChangeMap = this.currentHistory.get(target);
+
     if (keyToDiffChangeMap !== void 0) {
       if (keyToDiffChangeMap[key] !== void 0) {
         keyToDiffChangeMap[key].didUpdate = didUpdate;
@@ -107,6 +123,8 @@ class HistoryCollector {
         }
       });
     }
+
+    this.currentHistoryIdSet.add(target);
   }
 
   collectComponentId(target: object, key: string) {
@@ -122,12 +140,19 @@ class HistoryCollector {
   }
 
   endBatch() {
-    this.currentHistory = void 0;
     this.waitTriggerComponentIds = [];
+    if (!ctx.timeTravel.isActive) {
+      return;
+    }
+    this.currentHistory = void 0;
+    this.currentHistoryIdSet = void 0;
   }
 
   save() {
-    this.transactionHistories.push(this.currentHistory!);
+    this.transactionHistories.push({
+      historyKey: this.currentHistoryIdSet!,
+      history: this.currentHistory!,
+    });
     if (this.transactionHistories.length > ctx.timeTravel.maxStepNumber) {
       this.transactionHistories.shift();
     }

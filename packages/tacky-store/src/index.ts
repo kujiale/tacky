@@ -7,7 +7,7 @@ import { effect } from './decorators/effect';
 import { state } from './decorators/state';
 import { Domain } from './core/domain';
 import { init } from './core/init';
-import { reset } from './core/domain-store';
+import { reset } from './core/time-travel';
 
 // Proxy、Reflect、Symbol、Promise、WeakMap、Set
 // "plugins": [

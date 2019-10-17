@@ -30,10 +30,6 @@ export interface GlobalStateTree {
   [namespace: string]: AtomStateTree
 }
 
-export interface Reducer {
-  (state: ModuleState, ...restPayload: any[]): ModuleState
-}
-
 export interface Mutation {
   (...restPayload: any[]): void
 }
@@ -54,7 +50,7 @@ export interface DispatchedAction {
   payload: any[],
   type: EMaterialType,
   namespace: string,
-  original: Reducer | Effect | Mutation
+  original: Effect | Mutation
 }
 
 export interface ConfigCtx {

@@ -70,7 +70,7 @@ export function createStore(enhancer: (createStore: any) => Store) {
 
     try {
       isUpdating = true;
-      if (type !== EMaterialType.MUTATION) {
+      if (type !== EMaterialType.MUTATION && type !== EMaterialType.UPDATE) {
         return;
       }
       const currentMutation = original as Mutation;

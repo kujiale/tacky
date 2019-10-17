@@ -13,7 +13,7 @@ export interface DomainMapping {
   };
 }
 
-class DomainStore {
+class TimeTravel {
   idToInstanceMap: DomainMapping;
 
   init(payload: Payload) {
@@ -64,13 +64,13 @@ class DomainStore {
   }
 }
 
-const domainStore = new DomainStore();
+const timeTravel = new TimeTravel();
 
 /**
  * reset all domain back to initial snapshot
  */
 export const reset = () => {
-  domainStore.resetAll();
+  timeTravel.resetAll();
 };
 
-export default domainStore;
+export default timeTravel;

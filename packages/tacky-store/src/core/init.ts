@@ -4,7 +4,7 @@ import effectMiddleware from '../middlewares/effect'
 import loggerMiddleware from '../middlewares/logger'
 import { ctx } from '../const/config'
 import { compose } from '../utils/compose';
-import DomainStore from './domain-store';
+import timeTravel from './time-travel';
 import { invariant } from '../utils/error';
 import { isSupportProxy, isSupportSymbol } from '../utils/lang';
 
@@ -38,6 +38,6 @@ export function init() {
   createStore(enhancer);
 
   if (ctx.timeTravel.keepInitialSnapshot) {
-    DomainStore.syncAllInitialSnapshot();
+    timeTravel.syncAllInitialSnapshot();
   }
 }

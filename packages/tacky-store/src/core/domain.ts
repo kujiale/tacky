@@ -1,11 +1,12 @@
 import { CURRENT_MATERIAL_TYPE, NAMESPACE } from '../const/symbol';
-import { EMaterialType } from '../interfaces';
-import { isPlainObject, convert2UniqueString, hasOwn, isObject } from '../utils/common';
+import { EMaterialType, Mutation } from '../interfaces';
+import { isPlainObject, convert2UniqueString, hasOwn, isObject, bind } from '../utils/common';
 import { invariant } from '../utils/error';
-import DomainStore from './domain-store';
+import timeTravel from './time-travel';
 import generateUUID from '../utils/uuid';
 import { depCollector, historyCollector, EOperationTypes } from './collector';
 import { canObserve } from '../utils/decorator';
+import { store } from './store';
 
 const proxyCache = new WeakMap<any, any>();
 const rawCache = new WeakMap<any, any>();
@@ -22,7 +23,7 @@ export class Domain<S = {}> {
     const namespace = generateUUID();
     this[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
     this[NAMESPACE] = namespace;
-    DomainStore.init({
+    timeTravel.init({
       id: namespace,
       type: domainName,
       instance: this,
@@ -118,29 +119,29 @@ export class Domain<S = {}> {
    * lazy sync this domain initial snapshot
    */
   $lazySyncInitialSnapshot() {
-    DomainStore.syncInitialSnapshot(this[NAMESPACE]);
+    timeTravel.syncInitialSnapshot(this[NAMESPACE]);
   }
 
   /**
    * reset this domain instance to initial snapshot
    */
   $reset() {
-    DomainStore.reset(this[NAMESPACE]);
+    timeTravel.reset(this[NAMESPACE]);
   }
 
   /**
    * destroy this domain instance and all related things to release memory.
    */
   $destroy() {
-    DomainStore.destroy(this[NAMESPACE]);
+    timeTravel.destroy(this[NAMESPACE]);
   }
 
   /**
    * the syntax sweet of updating state out of mutation
    */
-  $update<K extends keyof S>(obj: Pick<S, K> | S): void {
+  $update<K extends keyof S>(obj: Pick<S, K> | S, actionName?: string): void {
     invariant(isPlainObject(obj), 'resetState(...) param type error. Param should be a plain object.');
-    this.dispatch(obj);
+    this.dispatch(obj as object, actionName);
   }
 
   /**
@@ -156,30 +157,29 @@ export class Domain<S = {}> {
     }
   }
 
-  private dispatch<K extends keyof S>(obj: Pick<S, K> | S) {
-  //   const target = Object.getPrototypeOf(this);
-  //   const original = function () {
-  //     for (const key in obj) {
-  //       if (obj.hasOwnProperty(key)) {
-  //         this[key] = obj[key];
-  //       }
-  //     }
-  //   };
-  //   target[CURRENT_MATERIAL_TYPE] = EMaterialType.UPDATE;
-  //   // update state before render
-  //   if (!store) {
-  //     original.call(this);
-  //     StateTree.syncPlainObjectStateTreeFromInstance(this[NAMESPACE]);
-  //     target[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
-  //     return;
-  //   }
-  //   // update state after render
-  //   store.dispatch({
-  //     payload: [],
-  //     type: EMaterialType.MUTATION,
-  //     namespace: this[NAMESPACE],
-  //     original: bind(original, this) as Mutation
-  //   });
-  //   target[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
+  private dispatch(obj: object, actionName?: string) {
+    const original = function () {
+      for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          this[key] = obj[key];
+        }
+      }
+    };
+    this[CURRENT_MATERIAL_TYPE] = EMaterialType.UPDATE;
+    // update state before store init
+    if (store === void 0) {
+      original.call(this);
+      this[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
+      return;
+    }
+    // update state after store init
+    store.dispatch({
+      name: actionName || generateUUID(),
+      payload: [],
+      type: EMaterialType.UPDATE,
+      namespace: this[NAMESPACE],
+      original: bind(original, this) as Mutation
+    });
+    this[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
   }
 }
