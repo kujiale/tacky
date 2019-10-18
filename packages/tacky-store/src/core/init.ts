@@ -18,13 +18,13 @@ export function init() {
 
   isRunning = true;
 
-  if (ctx.middleware.effect) {
-    use(effectMiddleware);
-  }
+  // if (ctx.middleware.effect) {
+  //   use(effectMiddleware);
+  // }
 
-  if (ctx.middleware.logger) {
-    use(loggerMiddleware);
-  }
+  // if (ctx.middleware.logger) {
+  //   use(loggerMiddleware);
+  // }
 
   const enhancers = [applyMiddleware()];
   let composeEnhancers = compose;
