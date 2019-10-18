@@ -1,7 +1,6 @@
 import * as React from 'react';
 import ErrorBoundary from './ErrorBoundary';
 import { store } from '../core/store';
-import { useForceUpdate } from '../utils/react-hooks';
 import { depCollector } from '../core/collector';
 
 /**
@@ -10,30 +9,7 @@ import { depCollector } from '../core/collector';
 export function stick(...args: any[]) {
   const decorator = <P extends object>(Target: React.ComponentType<P>) => {
     // const displayName: string = Target.displayName || Target.name || '<TACKY_COMPONENT>';
-    // Function component with react hooks
-    function ObservableTarget(props: P) {
-      const refreshView = useForceUpdate();
-
-      React.useEffect(() => {
-        const unsubscribeHandler = store.subscribe(() => {
-          refreshView();
-        }, this);
-
-        return () => {
-          if (unsubscribeHandler !== void 0) {
-            unsubscribeHandler();
-          }
-        };
-      }, []);
-
-      depCollector.start(this);
-      const fn = Target as React.FunctionComponent<P>;
-      const result = fn(props);
-      depCollector.end();
-
-      return result;
-    };
-
+    // Function component with react hooks do not have this context
     if (
       typeof Target === 'function' &&
       (!Target.prototype || !Target.prototype.render) &&
@@ -41,16 +17,41 @@ export function stick(...args: any[]) {
       !React.Component.isPrototypeOf(Target)
     ) {
       class Wrapper extends React.PureComponent<P> {
-        getObservableTargetRenderResult() {
-          return ObservableTarget.call(this, this.props, this.context);
+        unsubscribeHandler?: () => void;
+
+        componentDidMount() {
+          this.unsubscribeHandler = store.subscribe(() => {
+            this.forceUpdate();
+          }, this);
+          /*
+          * Trigger action on target component didMount is faster than subscribe listeners.
+          * TACKY must fetch latest state manually to solve the problems above.
+          */
+          /**
+           * @todo need to be confirmed.
+           */
+          // callback();
+        }
+
+        componentWillUnmount() {
+          if (this.unsubscribeHandler !== void 0) {
+            this.unsubscribeHandler();
+          }
+        }
+
+        renderTarget() {
+          depCollector.start(this);
+          const result = Target.call(this, this.props, this.context);
+          depCollector.end();
+          return result;
         }
 
         render() {
-            return (
-              <ErrorBoundary>
-                {this.getObservableTargetRenderResult()}
-              </ErrorBoundary>
-            )
+          return (
+            <ErrorBoundary>
+              {this.renderTarget()}
+            </ErrorBoundary>
+          )
         }
       }
 
@@ -62,12 +63,17 @@ export function stick(...args: any[]) {
     const target = Target.prototype || Target;
     const baseRender = target.render;
     let callback: () => void;
+    /**
+     * @todo maybe function component
+     */
+    let _this: React.Component;
 
     function refreshChildComponentView() {
       return () => React.Component.prototype.forceUpdate.call(this);
     }
 
     target.render = function () {
+      _this = this;
       callback = refreshChildComponentView.call(this);
       depCollector.start(this);
       const result = baseRender.call(this);
@@ -77,12 +83,11 @@ export function stick(...args: any[]) {
 
     class ObservableTargetComponent extends React.PureComponent<P> {
       unsubscribeHandler?: () => void;
-      uuid: string;
 
       componentDidMount() {
         this.unsubscribeHandler = store.subscribe(() => {
           callback();
-        }, this);
+        }, _this);
         /*
          * Trigger action on target component didMount is faster than subscribe listeners.
          * TACKY must fetch latest state manually to solve the problems above.
