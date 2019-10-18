@@ -106,8 +106,8 @@ export class Domain<S = {}> {
       return raw;
     }
     const proxy = new Proxy(raw, {
-      get: _this.proxyGet,
-      set: _this.proxySet,
+      get: bind(_this.proxyGet, _this),
+      set: bind(_this.proxySet, _this),
     });
     proxyCache.set(proxy, raw);
     rawCache.set(raw, proxy);

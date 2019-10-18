@@ -10,19 +10,26 @@ export function stick(...args: any[]) {
   const decorator = <P extends object>(Target: React.ComponentType<P>) => {
     // const displayName: string = Target.displayName || Target.name || '<TACKY_COMPONENT>';
     // Function component with react hooks do not have this context
+    function ObservableTarget(props: P) {
+      const fn = Target as React.FunctionComponent<P>;
+      const result = fn(props);
+      return result;
+    };
+
     if (
       typeof Target === 'function' &&
       (!Target.prototype || !Target.prototype.render) &&
       !Target.prototype.isReactClass &&
       !React.Component.isPrototypeOf(Target)
     ) {
+      let _this: React.Component;
       class Wrapper extends React.PureComponent<P> {
         unsubscribeHandler?: () => void;
 
         componentDidMount() {
           this.unsubscribeHandler = store.subscribe(() => {
             this.forceUpdate();
-          }, this);
+          }, _this);
           /*
           * Trigger action on target component didMount is faster than subscribe listeners.
           * TACKY must fetch latest state manually to solve the problems above.
@@ -39,20 +46,23 @@ export function stick(...args: any[]) {
           }
         }
 
-        renderTarget() {
-          depCollector.start(this);
-          const result = Target.call(this, this.props, this.context);
-          depCollector.end();
-          return result;
-        }
-
         render() {
           return (
             <ErrorBoundary>
-              {this.renderTarget()}
+              <ObservableTarget {...this.props as P} />
             </ErrorBoundary>
           )
         }
+      }
+
+      const baseRender = Wrapper.prototype.render;
+
+      Wrapper.prototype.render = function () {
+        _this = this;
+        depCollector.start(this);
+        const result = baseRender.call(this);
+        depCollector.end();
+        return result;
       }
 
       copyStaticProperties(Target, Wrapper);
