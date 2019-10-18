@@ -40,18 +40,23 @@ export function stick(...args: any[]) {
       !Target.prototype.isReactClass &&
       !React.Component.isPrototypeOf(Target)
     ) {
-      const StickWithErrorBoundary: React.FunctionComponent<P> = (props) => {
-        return (
-          <ErrorBoundary>
-            <ObservableTarget {...props as P} />
-          </ErrorBoundary>
-        );
-      };
-      const memoComponent = React.memo(StickWithErrorBoundary);
+      class Wrapper extends React.PureComponent<P> {
+        getObservableTargetRenderResult() {
+          return ObservableTarget.call(this, this.props, this.context);
+        }
 
-      copyStaticProperties(Target, memoComponent);
+        render() {
+            return (
+              <ErrorBoundary>
+                {this.getObservableTargetRenderResult()}
+              </ErrorBoundary>
+            )
+        }
+      }
 
-      return memoComponent;
+      copyStaticProperties(Target, Wrapper);
+
+      return Wrapper;
     }
 
     const target = Target.prototype || Target;

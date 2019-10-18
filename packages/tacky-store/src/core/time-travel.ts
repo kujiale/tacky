@@ -14,7 +14,7 @@ export interface DomainMapping {
 }
 
 class TimeTravel {
-  idToInstanceMap: DomainMapping;
+  idToInstanceMap: DomainMapping = {};
 
   init(payload: Payload) {
     const { id, type, instance } = payload;
