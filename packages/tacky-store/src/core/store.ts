@@ -2,9 +2,9 @@ import { Store, DispatchedAction, Mutation, EMaterialType } from '../interfaces'
 import { invariant } from '../utils/error';
 import { historyCollector } from './collector';
 import { nextTick, deduplicate, includes } from '../utils/common';
-import { ctx } from '../../ts/const/config';
 import * as ReactDOM from 'react-dom';
 import { Component } from 'react';
+import { ctx } from '../const/config';
 
 export let store: Store;
 
