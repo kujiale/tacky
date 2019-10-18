@@ -1,7 +1,7 @@
 import { applyMiddleware, use } from '../core/use'
 import { createStore } from '../core/store'
-import effectMiddleware from '../middlewares/effect'
-import loggerMiddleware from '../middlewares/logger'
+// import effectMiddleware from '../middlewares/effect'
+// import loggerMiddleware from '../middlewares/logger'
 import { ctx } from '../const/config'
 import { compose } from '../utils/compose';
 import timeTravel from './time-travel';
