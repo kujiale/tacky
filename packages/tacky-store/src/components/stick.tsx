@@ -1,120 +1,131 @@
 import * as React from 'react';
 import ErrorBoundary from './ErrorBoundary';
 import { store } from '../core/store';
-import collector from '../core/collector';
-import { useForceUpdate } from '../utils/hooks';
+import { depCollector } from '../core/collector';
 
-interface WithUidProps {
-  '@@TACKY__componentInstanceUid': string;
-};
-
-let countId = 0;
 /**
  * Returns a high order component with auto refresh feature.
  */
 export function stick(...args: any[]) {
   const decorator = <P extends object>(Target: React.ComponentType<P>) => {
-    const displayName: string = Target.displayName || Target.name || 'TACKY_COMPONENT';
-    // Function component with react hooks
+    // const displayName: string = Target.displayName || Target.name || '<TACKY_COMPONENT>';
+    // Function component with react hooks do not have this context
+    function ObservableTarget(props: P) {
+      const fn = Target as React.FunctionComponent<P>;
+      const result = fn(props);
+      return result;
+    };
+
     if (
       typeof Target === 'function' &&
       (!Target.prototype || !Target.prototype.render) &&
       !Target.prototype.isReactClass &&
       !React.Component.isPrototypeOf(Target)
     ) {
-      // function component, no instance, share the same id
-      const componentInstanceUid: string = `@@${displayName}__${++countId}`;
-      const Stick: React.FunctionComponent<P> = (props) => {
-        const refreshView = useForceUpdate();
+      let _this: React.Component;
+      class Wrapper extends React.PureComponent<P> {
+        unsubscribeHandler?: () => void;
 
-        React.useEffect(() => {
-          const unsubscribeHandler = store.subscribe(() => {
-            refreshView();
-          }, componentInstanceUid);
+        componentDidMount() {
+          this.unsubscribeHandler = store.subscribe(() => {
+            this.forceUpdate();
+          }, _this);
+          /*
+          * Trigger action on target component didMount is faster than subscribe listeners.
+          * TACKY must fetch latest state manually to solve the problems above.
+          */
+          /**
+           * @todo need to be confirmed.
+           */
+          // callback();
+        }
 
-          return () => {
-            if (unsubscribeHandler) {
-              unsubscribeHandler();
-            }
-          };
-        }, []);
+        componentWillUnmount() {
+          if (this.unsubscribeHandler !== void 0) {
+            this.unsubscribeHandler();
+          }
+        }
 
-        collector.start(componentInstanceUid);
-        const fn = Target as React.FunctionComponent<P>;
-        const result = fn(props);
-        collector.end();
+        render() {
+          return (
+            <ErrorBoundary>
+              <ObservableTarget {...this.props as P} />
+            </ErrorBoundary>
+          )
+        }
+      }
 
+      const baseRender = Wrapper.prototype.render;
+
+      Wrapper.prototype.render = function () {
+        _this = this;
+        depCollector.start(this);
+        const result = baseRender.call(this);
+        depCollector.end();
         return result;
-      };
+      }
 
-      const StickWithErrorBoundary: React.FunctionComponent<P> = (props) => {
-        return (
-          <ErrorBoundary>
-            <Stick {...props as P} />
-          </ErrorBoundary>
-        );
-      };
-      const memoComponent = React.memo(StickWithErrorBoundary);
+      copyStaticProperties(Target, Wrapper);
 
-      copyStaticProperties(Target, memoComponent);
-
-      return memoComponent;
+      return Wrapper;
     }
 
     const target = Target.prototype || Target;
     const baseRender = target.render;
-    let callback;
+    let callback: () => void;
+    /**
+     * @todo maybe function component
+     */
+    let _this: React.Component;
 
     function refreshChildComponentView() {
       return () => React.Component.prototype.forceUpdate.call(this);
     }
 
     target.render = function () {
+      _this = this;
       callback = refreshChildComponentView.call(this);
-      const id = this.props['@@TACKY__componentInstanceUid'];
-      collector.start(id);
+      depCollector.start(this);
       const result = baseRender.call(this);
-      collector.end();
+      depCollector.end();
       return result;
     }
 
-    class Stick extends React.PureComponent<P & WithUidProps> {
+    class ObservableTargetComponent extends React.PureComponent<P> {
       unsubscribeHandler?: () => void;
-      componentInstanceUid: string = `@@${displayName}__${++countId}`;
 
       componentDidMount() {
         this.unsubscribeHandler = store.subscribe(() => {
           callback();
-        }, this.componentInstanceUid);
+        }, _this);
         /*
          * Trigger action on target component didMount is faster than subscribe listeners.
          * TACKY must fetch latest state manually to solve the problems above.
          */
-        callback();
+        /**
+         * @todo need to be confirmed.
+         */
+        // callback();
       }
 
       componentWillUnmount() {
-        if (this.unsubscribeHandler) {
+        if (this.unsubscribeHandler !== void 0) {
           this.unsubscribeHandler();
         }
       }
 
       render() {
-        const props = {
-          ...this.props as object,
-          '@@TACKY__componentInstanceUid': this.componentInstanceUid,
-        };
         return (
           <ErrorBoundary>
-            <Target {...props as P} />
+            <Target {...this.props as P} />
           </ErrorBoundary>
         )
       }
     }
 
-    copyStaticProperties(Target, Stick);
+    copyStaticProperties(Target, ObservableTargetComponent);
 
-    return Stick;
+    return ObservableTargetComponent;
   };
 
   if (args.length === 1 && typeof args[0] === 'function') {
@@ -135,7 +146,7 @@ const hoistBlackList: any = {
 
 function copyStaticProperties(base: any, target: any) {
   Object.keys(base).forEach(key => {
-    if (base.hasOwnProperty(key) && !hoistBlackList[key]) {
+    if (base.hasOwnProperty(key) && hoistBlackList[key] === void 0) {
       Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(base, key)!)
     }
   });

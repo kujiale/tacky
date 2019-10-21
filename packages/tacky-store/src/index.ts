@@ -2,13 +2,14 @@ import { stick } from './components/stick';
 import { render } from './components/render';
 import { use } from './core/use';
 import { config } from './const/config';
-import { mutation, reducer } from './core/updater';
-import { effect } from './core/effect';
-import { state } from './core/state';
+import { mutation } from './decorators/updater';
+import { effect } from './decorators/effect';
+import { state } from './decorators/state';
 import { Domain } from './core/domain';
 import { init } from './core/init';
+import { reset } from './core/time-travel';
 
-// Proxy、Reflect、Symbol、Promise、WeakMap
+// Proxy、Reflect、Symbol、Promise、WeakMap、Set
 // "plugins": [
 //   "transform-decorators-legacy",
 //   "transform-class-properties"
@@ -17,7 +18,6 @@ import { init } from './core/init';
 export default {
   stick,
   render,
-  reducer,
   effect,
   mutation,
   use,
@@ -25,12 +25,12 @@ export default {
   state,
   Domain,
   init,
+  reset,
 }
 
 export {
   stick,
   render,
-  reducer,
   effect,
   mutation,
   use,
@@ -38,4 +38,5 @@ export {
   state,
   Domain,
   init,
+  reset,
 }

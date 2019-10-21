@@ -1,22 +1,22 @@
 import { ctx } from '../const/config'
-import { store } from './store';
+import { store } from '../core/store';
 import { NAMESPACE, CURRENT_MATERIAL_TYPE } from '../const/symbol';
 import { bind } from '../utils/common';
-import { Effect, MaterialType, BabelDescriptor } from '../interfaces';
+import { Effect, EMaterialType, BabelDescriptor } from '../interfaces';
 import { invariant } from '../utils/error';
 import { quacksLikeADecorator } from '../utils/decorator';
 
 function createEffect(target, name, original) {
   return async function (...payload: any[]) {
-    target[CURRENT_MATERIAL_TYPE] = MaterialType.Effect;
+    target[CURRENT_MATERIAL_TYPE] = EMaterialType.EFFECT;
     await store.dispatch({
       name,
       payload,
-      type: MaterialType.Effect,
+      type: EMaterialType.EFFECT,
       namespace: this[NAMESPACE],
       original: bind(original, this) as Effect
     });
-    target[CURRENT_MATERIAL_TYPE] = MaterialType.Noop;
+    target[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
   };
 }
 
@@ -31,7 +31,7 @@ export function effect(...args: any[]) {
     );
 
     // typescript only: @effect method = async () => {}
-    if (!descriptor) {
+    if (descriptor === void 0) {
       let effectFunc;
       Object.defineProperty(target, name, {
         enumerable: true,
@@ -47,7 +47,7 @@ export function effect(...args: any[]) {
     }
 
     // babel/typescript: @effect method() {}
-    if (descriptor.value) {
+    if (descriptor.value !== void 0) {
       const original: Effect = descriptor.value;
       descriptor.value = createEffect(target, name, original);
       return descriptor;

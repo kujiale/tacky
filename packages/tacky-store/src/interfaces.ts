@@ -1,4 +1,5 @@
 import { Domain } from './core/domain';
+import { Component } from 'react';
 
 export type MiddlewareParam = {
   dispatch: (action: DispatchedAction) => DispatchedAction,
@@ -11,7 +12,7 @@ export interface Middleware {
 
 export interface Store {
   dispatch: (action: DispatchedAction) => DispatchedAction,
-  subscribe: (listener: Function, componentInstanceUid: string) => () => void,
+  subscribe: (listener: Function, componentInstanceUid: Component) => () => void,
   getState: (namespace?: string) => ModuleState | GlobalStateTree
 }
 
@@ -29,10 +30,6 @@ export interface GlobalStateTree {
   [namespace: string]: AtomStateTree
 }
 
-export interface Reducer {
-  (state: ModuleState, ...restPayload: any[]): ModuleState
-}
-
 export interface Mutation {
   (...restPayload: any[]): void
 }
@@ -41,19 +38,19 @@ export interface Effect {
   (...restPayload: any[]): Promise<void>
 }
 
-export enum MaterialType {
-  Reducer,
-  Mutation,
-  Effect,
-  Noop,
+export enum EMaterialType {
+  DEFAULT,
+  MUTATION,
+  UPDATE,
+  EFFECT,
 }
 
 export interface DispatchedAction {
   name?: string,
   payload: any[],
-  type: MaterialType,
+  type: EMaterialType,
   namespace: string,
-  original: Reducer | Effect | Mutation
+  original: Effect | Mutation
 }
 
 export interface ConfigCtx {
@@ -61,7 +58,12 @@ export interface ConfigCtx {
     logger: boolean,
     effect: boolean
   },
-  devTool: boolean
+  timeTravel: {
+    isActive: boolean,
+    maxStepNumber: number,
+    keepInitialSnapshot: boolean,
+  },
+  devTool: boolean,
 }
 
 export type BabelDescriptor<T> = TypedPropertyDescriptor<T> & { initializer?: () => any }

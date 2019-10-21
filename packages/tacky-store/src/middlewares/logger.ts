@@ -1,5 +1,5 @@
 import { Middleware } from '../interfaces';
-import { deepMerge } from '../utils/common';
+import { deepMerge } from '../utils/deep-merge';
 
 function createLoggerMiddleware(): Middleware {
   return ({ dispatch, getState }) => (next: any) => (action) => {

@@ -1,4 +1,5 @@
-import { deepMerge, bind, shallowEqual } from '../common';
+import { bind, shallowEqual } from '../common';
+import { deepMerge } from '../deep-merge';
 
 describe('utils -> common', () => {
   it('deepMerge', () => {

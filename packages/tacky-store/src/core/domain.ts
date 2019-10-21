@@ -1,89 +1,163 @@
 import { CURRENT_MATERIAL_TYPE, NAMESPACE } from '../const/symbol';
-import { MaterialType, Mutation, AtomStateTree } from '../interfaces';
-import Observable from './observable';
-import { observeObject } from '../utils/observe-object';
-import { isObject, bind } from '../utils/common';
+import { EMaterialType, Mutation } from '../interfaces';
+import { isPlainObject, convert2UniqueString, hasOwn, isObject, bind } from '../utils/common';
 import { invariant } from '../utils/error';
+import timeTravel from './time-travel';
+import generateUUID from '../utils/uuid';
+import { depCollector, historyCollector, EOperationTypes } from './collector';
+import { canObserve } from '../utils/decorator';
 import { store } from './store';
-import StateTree from './stateTree';
 
-let uid = 0;
-export const observableStateTree = new WeakMap();
+const proxyCache = new WeakMap<any, any>();
+const rawCache = new WeakMap<any, any>();
 
-export function createObservableState({
-  raw,
-  target,
-  currentInstance,
-}) {
-  if (isObject(raw)) {
-    observeObject({
-      raw,
-      target,
-      currentInstance,
+/**
+ * Framework base class 'Domain', class must be extends this base class which is need to be observable.
+ */
+export class Domain<S = {}> {
+  private properties: { [key in keyof this]?: this[key] } = {};
+
+  constructor() {
+    const target = Object.getPrototypeOf(this);
+    const domainName = target.constructor.name || 'TACKY_DOMAIN';
+    const namespace = generateUUID();
+    this[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
+    this[NAMESPACE] = namespace;
+    timeTravel.init({
+      id: namespace,
+      type: domainName,
+      instance: this,
     });
   }
 
-  return new Observable(raw, target, currentInstance);
-}
+  propertyGet(key: string | symbol | number) {
+    const stringKey = convert2UniqueString(key);
+    const v = this.properties[stringKey];
 
-export function observableStateFactory({
-  currentInstance,
-  target,
-  property,
-  raw,
-}) {
-  if (observableStateTree.get(currentInstance)) {
-    if (observableStateTree.get(currentInstance)[property]) {
-      return observableStateTree.get(currentInstance)[property];
+    depCollector.collect(this, stringKey);
+
+    return isObject(v) ? this.proxyReactive(v) : v;
+  }
+
+  propertySet(key: string | symbol | number, v: any) {
+    const stringKey = convert2UniqueString(key);
+
+    this.illegalAssignmentCheck(this, stringKey);
+    historyCollector.collect(this, stringKey, {
+      type: EOperationTypes.SET,
+      beforeUpdate: this.properties[stringKey],
+      didUpdate: v,
+    });
+    this.properties[stringKey] = v;
+  }
+
+  private proxySet(target: any, key: string | symbol | number, value: any, receiver: any) {
+    const stringKey = convert2UniqueString(key);
+    this.illegalAssignmentCheck(target, stringKey);
+
+    const hadKey = hasOwn(target, key);
+    const oldValue = target[key];
+    const result = Reflect.set(target, key, value, receiver);
+    // do nothing if target is in the prototype chain
+    if (target === proxyCache.get(receiver)) {
+      if (!hadKey) {
+        historyCollector.collect(target, stringKey, {
+          type: EOperationTypes.ADD,
+          beforeUpdate: oldValue,
+          didUpdate: value,
+        });
+      } else if (value !== oldValue) {
+        historyCollector.collect(target, stringKey, {
+          type: EOperationTypes.SET,
+          beforeUpdate: oldValue,
+          didUpdate: value,
+        });
+      }
     }
-    const observable = createObservableState({ raw, target, currentInstance });
-    observableStateTree.get(currentInstance)[property] = observable;
 
-    return observableStateTree.get(currentInstance)[property];
-  }
-  observableStateTree.set(currentInstance, {});
-  const observable = createObservableState({ raw, target, currentInstance });
-  observableStateTree.get(currentInstance)[property] = observable;
-
-  return observableStateTree.get(currentInstance)[property];
-}
-
-/**
- * Framework base class 'Domain'. Do some initial operations when domain instantiate.
- */
-export class Domain<S = {}> {
-  constructor() {
-    const target = Object.getPrototypeOf(this);
-    uid += 1;
-    target[CURRENT_MATERIAL_TYPE] = MaterialType.Mutation;
-    const domainName = target.constructor.name || 'TACKY_DOMAIN';
-    const namespace = `${domainName}@@${uid}`;
-    this[NAMESPACE] = namespace;
-    StateTree.initInstanceStateTree(namespace, this);
+    return result;
   }
 
-  $lazyLoad() {
-    const target = Object.getPrototypeOf(this);
-    target[CURRENT_MATERIAL_TYPE] = MaterialType.Noop;
-    StateTree.initPlainObjectAndDefaultStateTreeFromInstance(this[NAMESPACE]);
+  private proxyGet(target: any, key: string | symbol | number, receiver: any) {
+    const res = Reflect.get(target, key, receiver);
+    const stringKey = convert2UniqueString(key);
+
+    depCollector.collect(target, stringKey);
+
+    return isObject(res) ? this.proxyReactive(res) : res;
   }
 
+  /**
+   * proxy value could be boolean, string, number, undefined, null, custom instance, array[], plainObject{}
+   * @todo: support Map、Set、WeakMap、WeakSet
+   */
+  private proxyReactive(raw: object) {
+    const _this = this;
+    // different props use same ref
+    const refProxy = rawCache.get(raw);
+    if (refProxy !== void 0) {
+      return refProxy;
+    }
+    // raw is already a Proxy
+    if (proxyCache.has(raw)) {
+      return raw;
+    }
+    if (!canObserve(raw)) {
+      return raw;
+    }
+    const proxy = new Proxy(raw, {
+      get: bind(_this.proxyGet, _this),
+      set: bind(_this.proxySet, _this),
+    });
+    proxyCache.set(proxy, raw);
+    rawCache.set(raw, proxy);
+
+    return proxy;
+  }
+
+  /**
+   * lazy sync this domain initial snapshot
+   */
+  $lazySyncInitialSnapshot() {
+    timeTravel.syncInitialSnapshot(this[NAMESPACE]);
+  }
+
+  /**
+   * reset this domain instance to initial snapshot
+   */
   $reset() {
-    const atom = StateTree.globalStateTree[this[NAMESPACE]] as AtomStateTree;
-    this.dispatch(atom.default);
+    timeTravel.reset(this[NAMESPACE]);
   }
 
+  /**
+   * destroy this domain instance and all related things to release memory.
+   */
   $destroy() {
-    StateTree.clearAll(this[NAMESPACE]);
+    timeTravel.destroy(this[NAMESPACE]);
   }
 
-  $update<K extends keyof S>(obj: Pick<S, K> | S): void {
-    invariant(isObject(obj), 'resetState(...) param type error. Param should be a plain object.');
-    this.dispatch(obj);
+  /**
+   * the syntax sweet of updating state out of mutation
+   */
+  $update<K extends keyof S>(obj: Pick<S, K> | S, actionName?: string): void {
+    invariant(isPlainObject(obj), 'resetState(...) param type error. Param should be a plain object.');
+    this.dispatch(obj as object, actionName);
   }
 
-  private dispatch(obj) {
-    const target = Object.getPrototypeOf(this);
+  /**
+   * only in @mutation/$update/constructor can assign value to @state, otherwise throw error.
+   */
+  private illegalAssignmentCheck(target: object, stringKey: string) {
+    if (depCollector.isObserved(target, stringKey)) {
+      invariant(
+        this[CURRENT_MATERIAL_TYPE] === EMaterialType.MUTATION ||
+        this[CURRENT_MATERIAL_TYPE] === EMaterialType.UPDATE,
+        'You cannot assign value to (decorated @state property) by (this.a = \'xxx\';) directly. Please use mutation or $update({}).'
+      );
+    }
+  }
+
+  private dispatch(obj: object, actionName?: string) {
     const original = function () {
       for (const key in obj) {
         if (obj.hasOwnProperty(key)) {
@@ -91,21 +165,21 @@ export class Domain<S = {}> {
         }
       }
     };
-    target[CURRENT_MATERIAL_TYPE] = MaterialType.Mutation;
-    // update state before render
-    if (!store) {
+    this[CURRENT_MATERIAL_TYPE] = EMaterialType.UPDATE;
+    // update state before store init
+    if (store === void 0) {
       original.call(this);
-      StateTree.syncPlainObjectStateTreeFromInstance(this[NAMESPACE]);
-      target[CURRENT_MATERIAL_TYPE] = MaterialType.Noop;
+      this[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
       return;
     }
-    // update state after render
+    // update state after store init
     store.dispatch({
+      name: actionName || generateUUID(),
       payload: [],
-      type: MaterialType.Mutation,
+      type: EMaterialType.UPDATE,
       namespace: this[NAMESPACE],
       original: bind(original, this) as Mutation
     });
-    target[CURRENT_MATERIAL_TYPE] = MaterialType.Noop;
+    this[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
   }
 }

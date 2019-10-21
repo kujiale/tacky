@@ -1,28 +1,30 @@
 import { applyMiddleware, use } from '../core/use'
 import { createStore } from '../core/store'
-import effectMiddleware from '../middlewares/effect'
-import loggerMiddleware from '../middlewares/logger'
+// import effectMiddleware from '../middlewares/effect'
+// import loggerMiddleware from '../middlewares/logger'
 import { ctx } from '../const/config'
 import { compose } from '../utils/compose';
-import TackyStoreTree from '../core/stateTree';
+import timeTravel from './time-travel';
 import { invariant } from '../utils/error';
+import { isSupportProxy, isSupportSymbol } from '../utils/lang';
 
 export let isRunning = false;
 /**
- * Includes init built-in middleware, create store, load domain global state and so on.
+ * Includes init built-in middleware, create store, load domain tree and so on.
  */
 export function init() {
+  invariant(isSupportProxy() && isSupportSymbol(), 'Proxy or Symbol is not supported, please add polyfill.');
   invariant(!isRunning, 'Cannot init store multiple times.');
 
   isRunning = true;
 
-  if (ctx.middleware.effect) {
-    use(effectMiddleware);
-  }
+  // if (ctx.middleware.effect) {
+  //   use(effectMiddleware);
+  // }
 
-  if (ctx.middleware.logger) {
-    use(loggerMiddleware);
-  }
+  // if (ctx.middleware.logger) {
+  //   use(loggerMiddleware);
+  // }
 
   const enhancers = [applyMiddleware()];
   let composeEnhancers = compose;
@@ -34,6 +36,8 @@ export function init() {
   const enhancer = composeEnhancers(...enhancers);
 
   createStore(enhancer);
-  // load all domain global state from instance
-  TackyStoreTree.loadAll();
+
+  if (ctx.timeTravel.keepInitialSnapshot) {
+    timeTravel.syncAllInitialSnapshot();
+  }
 }

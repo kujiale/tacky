@@ -1,9 +1,8 @@
 import { isSupportSymbol } from '../utils/lang';
 
-export function compatibleSymbol(key) {
+export function compatibleSymbol(key: string) {
   return isSupportSymbol() ? Symbol(key) : `@@TACKY__${key}`;
 }
 
+export const CURRENT_MATERIAL_TYPE = compatibleSymbol('material-type');
 export const NAMESPACE = compatibleSymbol('namespace');
-export const COMPONENT_INSTANCE_UID = compatibleSymbol('componentInstanceUid');
-export const CURRENT_MATERIAL_TYPE = compatibleSymbol('materialType');

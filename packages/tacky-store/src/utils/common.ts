@@ -1,21 +1,72 @@
-/**
- * Quick object check - this is primarily used to tell
- * Objects from primitive values when we know the value
- * is a JSON-compliant type.
- */
+import { isSymbol } from './lang';
+import generateUUID from './uuid';
+import { fail } from './error';
+
 export function isObject(value: any): boolean {
-  if (value === null || typeof value !== 'object') return false;
-  const proto = Object.getPrototypeOf(value);
-  return proto === Object.prototype || proto === null;
+  return value !== null && typeof value === "object"
 }
 
-export function isPrimitive(value) {
+// {}
+export function isPlainObject(value: any) {
+  if (value === null || typeof value !== "object") return false
+  const proto = Object.getPrototypeOf(value)
+  return proto === Object.prototype || proto === null
+}
+
+export function includes<T>(array: T[], item: T) {
+  return array.indexOf(item) > -1;
+}
+
+// boolean, string, number, undefined, null
+export function isPrimitive(value: any) {
   return value === null || (typeof value !== 'object' && typeof value !== 'function');
 }
 
-export function simpleClone(value) {
-  return JSON.parse(JSON.stringify(value));
+export function convert2UniqueString(key: string | symbol | number) {
+  if (!isSymbol(key)) {
+    return (key as string | number).toString();
+  }
+  return (key as symbol).toString() + generateUUID();
 }
+
+export const deduplicate = (array: any[]): any[] => Array.from(new Set(array));
+
+const promise = Promise.resolve();
+/**
+ * nextTick would flush promise micro task
+ */
+export function nextTick(fn?: () => void): Promise<void> {
+  return fn ? promise.then(fn) : promise;
+}
+
+let isFlushing = false;
+const jobQueue: Function[] = [];
+
+export function queueJob(job: () => void) {
+  if (jobQueue.indexOf(job) === -1) {
+    jobQueue.push(job);
+    if (!isFlushing) {
+      isFlushing = true;
+      nextTick(() => {
+        let job = jobQueue.shift();
+        while (job !== void 0) {
+          try {
+            job();
+          } catch (err) {
+            fail(err);
+          }
+          job = jobQueue.shift();
+        }
+        isFlushing = false;
+      });
+    }
+  }
+}
+
+export const hasOwn = (
+  val: object,
+  key: string | symbol | number
+): key is keyof typeof val => Object.prototype.hasOwnProperty.call(val, key);
 
 // From: https://github.com/facebook/fbjs/blob/c69904a511b900266935168223063dd8772dfc40/packages/fbjs/src/core/shallowEqual.js
 export function is(x, y) {
@@ -53,64 +104,4 @@ export function shallowEqual(objA, objB) {
     }
   }
   return true
-}
-
-function isMergeableObject(val) {
-  const nonNullObject = val && typeof val === 'object'
-
-  return nonNullObject
-    && Object.prototype.toString.call(val) !== '[object RegExp]'
-    && Object.prototype.toString.call(val) !== '[object Date]'
-}
-
-function emptyTarget(val) {
-  return Array.isArray(val) ? [] : {};
-}
-
-function cloneIfNecessary(value, optionsArgument) {
-  const clone = optionsArgument && optionsArgument.clone === true
-  return (clone && isMergeableObject(value)) ? deepMerge(emptyTarget(value), value, optionsArgument) : value
-}
-
-function defaultArrayMerge(target, source, optionsArgument) {
-  const destination = target.slice()
-  source.forEach((e, i) => {
-    if (typeof destination[i] === 'undefined') {
-      destination[i] = cloneIfNecessary(e, optionsArgument)
-    } else if (isMergeableObject(e)) {
-      destination[i] = deepMerge(target[i], e, optionsArgument)
-    } else if (target.indexOf(e) === -1) {
-      destination.push(cloneIfNecessary(e, optionsArgument))
-    }
-  })
-  return destination
-}
-
-function mergeObject(target, source, optionsArgument) {
-  const destination = {}
-  if (isMergeableObject(target)) {
-    Object.keys(target).forEach((key) => {
-      destination[key] = cloneIfNecessary(target[key], optionsArgument)
-    })
-  }
-  Object.keys(source).forEach((key) => {
-    if (!isMergeableObject(source[key]) || !target[key]) {
-      destination[key] = cloneIfNecessary(source[key], optionsArgument)
-    } else {
-      destination[key] = deepMerge(target[key], source[key], optionsArgument)
-    }
-  })
-  return destination
-}
-
-export function deepMerge(target, source, optionsArgument?: any) {
-  const array = Array.isArray(source)
-  const options = optionsArgument || { arrayMerge: defaultArrayMerge }
-  const arrayMerge = options.arrayMerge || defaultArrayMerge
-
-  if (array) {
-    return Array.isArray(target) ? arrayMerge(target, source, optionsArgument) : cloneIfNecessary(source, optionsArgument)
-  } else {
-    return mergeObject(target, source, optionsArgument)
-  }
 }
