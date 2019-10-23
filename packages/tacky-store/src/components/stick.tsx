@@ -9,14 +9,12 @@ import { depCollector } from '../core/collector';
 export function stick(...args: any[]) {
   const decorator = <P extends object>(Target: React.ComponentType<P>) => {
     // const displayName: string = Target.displayName || Target.name || '<TACKY_COMPONENT>';
-    /**
-     * @todo maybe function component
-     */
     let _this: React.Component;
-    // Function component with react hooks do not have this context
-    function ObservableTarget(props: P) {
+    // Function component with do not have this context
+    const ObservableTarget: React.FunctionComponent = (props: P) => {
       depCollector.start(_this);
       const fn = Target as React.FunctionComponent<P>;
+      // target component don't use react.memo
       const result = fn(props);
       depCollector.end();
       return result;
