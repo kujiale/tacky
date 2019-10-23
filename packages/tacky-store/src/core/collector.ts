@@ -28,7 +28,7 @@ class DepCollector {
       if (idsArray !== void 0) {
         if (!includes(idsArray, currentComponentId)) idsArray.push(currentComponentId);
       } else {
-        idsArray = [currentComponentId];
+        keyToComponentIdsMap[propKey] = [currentComponentId];
       }
     } else {
       this.dependencyMap.set(targetKey, {

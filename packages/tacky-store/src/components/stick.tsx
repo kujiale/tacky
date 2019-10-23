@@ -9,10 +9,16 @@ import { depCollector } from '../core/collector';
 export function stick(...args: any[]) {
   const decorator = <P extends object>(Target: React.ComponentType<P>) => {
     // const displayName: string = Target.displayName || Target.name || '<TACKY_COMPONENT>';
+    /**
+     * @todo maybe function component
+     */
+    let _this: React.Component;
     // Function component with react hooks do not have this context
     function ObservableTarget(props: P) {
+      depCollector.start(_this);
       const fn = Target as React.FunctionComponent<P>;
       const result = fn(props);
+      depCollector.end();
       return result;
     };
 
@@ -22,7 +28,6 @@ export function stick(...args: any[]) {
       !Target.prototype.isReactClass &&
       !React.Component.isPrototypeOf(Target)
     ) {
-      let _this: React.Component;
       class Wrapper extends React.PureComponent<P> {
         unsubscribeHandler?: () => void;
 
@@ -59,10 +64,7 @@ export function stick(...args: any[]) {
 
       Wrapper.prototype.render = function () {
         _this = this;
-        depCollector.start(this);
-        const result = baseRender.call(this);
-        depCollector.end();
-        return result;
+        return baseRender.call(this);
       }
 
       copyStaticProperties(Target, Wrapper);
@@ -70,13 +72,10 @@ export function stick(...args: any[]) {
       return Wrapper;
     }
 
+    // class component
     const target = Target.prototype || Target;
     const baseRender = target.render;
     let callback: () => void;
-    /**
-     * @todo maybe function component
-     */
-    let _this: React.Component;
 
     function refreshChildComponentView() {
       return () => React.Component.prototype.forceUpdate.call(this);
