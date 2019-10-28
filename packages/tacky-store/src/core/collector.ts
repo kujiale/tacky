@@ -5,14 +5,46 @@ import { Component } from 'react';
 export interface KeyToComponentIdsMap {
   [key: string]: Component[];
 };
+
+export type TargetToKeysMap = Map<object, string[]>;
 /**
  * collect relation map of the dep key and the component ids
  */
 class DepCollector {
   public dependencyMap = new WeakMap<object, KeyToComponentIdsMap>();
+  /**
+   * Using a small amount of memory to improve execute performance
+   */
+  public reverseDependencyMap = new WeakMap<Component, TargetToKeysMap>();
   private componentIdStack: Component[] = [];
 
+  private clearCurrentComponentOldDeps(id: Component) {
+    const targetToKeysMap = this.reverseDependencyMap.get(id);
+    if (targetToKeysMap !== void 0) {
+      for (let [targetKey, propKeys] of targetToKeysMap) {
+        const keyToComponentIdsMap = this.dependencyMap.get(targetKey);
+        if (keyToComponentIdsMap !== void 0) {
+          for (let index = 0; index < propKeys.length; index++) {
+            const propKey = propKeys[index];
+            let componentIds = keyToComponentIdsMap[propKey];
+            if (componentIds !== void 0) {
+              keyToComponentIdsMap[propKey] = componentIds.filter(cid => cid !== id);
+            }
+            if (componentIds === void 0 || componentIds.length === 0) {
+              delete keyToComponentIdsMap[propKey];
+            }
+          }
+        }
+        if (keyToComponentIdsMap === void 0 || Object.keys(keyToComponentIdsMap).length === 0) {
+          this.dependencyMap.delete(targetKey);
+        }
+      }
+    }
+  }
+
   start(id: Component) {
+    this.clearCurrentComponentOldDeps(id);
+    this.reverseDependencyMap.delete(id);
     this.componentIdStack.push(id);
   }
 
@@ -22,6 +54,19 @@ class DepCollector {
       return;
     }
     const currentComponentId = this.componentIdStack[stackLength - 1];
+    const targetToKeysMap = this.reverseDependencyMap.get(currentComponentId);
+    if (targetToKeysMap !== void 0) {
+      const keys = targetToKeysMap.get(targetKey);
+      if (keys !== void 0) {
+        if (!includes(keys, propKey)) keys.push(propKey);
+      } else {
+        targetToKeysMap.set(targetKey, [propKey]);
+      }
+    } else {
+      const wm: TargetToKeysMap = new Map();
+      wm.set(targetKey, [propKey]);
+      this.reverseDependencyMap.set(currentComponentId, wm);
+    }
     const keyToComponentIdsMap = this.dependencyMap.get(targetKey);
     if (keyToComponentIdsMap !== void 0) {
       let idsArray = keyToComponentIdsMap[propKey];
@@ -86,9 +131,13 @@ export interface HistoryCollectorPayload {
  */
 class HistoryCollector {
   public currentHistory?: History;
+  /**
+   * Considering the memory cost and iteratable, using Set just only keep id.
+   */
   public currentHistoryIdSet?: HistoryIdSet;
   public transactionHistories: HistoryNode[] = [];
   public waitTriggerComponentIds: Component[] = [];
+  public cursor: number = -1;
 
   collect(target: object, key: string, payload: HistoryCollectorPayload) {
     this.collectComponentId(target, key);
@@ -149,10 +198,20 @@ class HistoryCollector {
   }
 
   save() {
-    this.transactionHistories.push({
-      historyKey: this.currentHistoryIdSet!,
-      history: this.currentHistory!,
-    });
+    if (this.cursor === this.transactionHistories.length - 1) {
+      this.transactionHistories.push({
+        historyKey: this.currentHistoryIdSet!,
+        history: this.currentHistory!,
+      });
+      this.cursor += 1;
+    } else if (this.cursor < this.transactionHistories.length - 1) {
+      this.transactionHistories = this.transactionHistories.slice(0, this.cursor + 1);
+      this.transactionHistories.push({
+        historyKey: this.currentHistoryIdSet!,
+        history: this.currentHistory!,
+      });
+    }
+
     if (this.transactionHistories.length > ctx.timeTravel.maxStepNumber) {
       this.transactionHistories.shift();
     }

@@ -41,25 +41,27 @@ export class Domain<S = {}> {
 
   propertySet(key: string | symbol | number, v: any) {
     const stringKey = convert2UniqueString(key);
-
     this.illegalAssignmentCheck(this, stringKey);
-    historyCollector.collect(this, stringKey, {
-      type: EOperationTypes.SET,
-      beforeUpdate: this.properties[stringKey],
-      didUpdate: v,
-    });
-    this.properties[stringKey] = v;
+    const oldValue = this.properties[stringKey];
+
+    if (oldValue !== v) {
+      this.properties[stringKey] = v;
+      historyCollector.collect(this, stringKey, {
+        type: EOperationTypes.SET,
+        beforeUpdate: oldValue,
+        didUpdate: v,
+      });
+    }
   }
 
   private proxySet(target: any, key: string | symbol | number, value: any, receiver: any) {
     const stringKey = convert2UniqueString(key);
     this.illegalAssignmentCheck(target, stringKey);
-
     const hadKey = hasOwn(target, key);
     const oldValue = target[key];
-    const result = Reflect.set(target, key, value, receiver);
     // do nothing if target is in the prototype chain
     if (target === proxyCache.get(receiver)) {
+      const result = Reflect.set(target, key, value, receiver);
       if (!hadKey) {
         historyCollector.collect(target, stringKey, {
           type: EOperationTypes.ADD,
@@ -73,9 +75,10 @@ export class Domain<S = {}> {
           didUpdate: value,
         });
       }
+      return result;
     }
 
-    return result;
+    return false;
   }
 
   private proxyGet(target: any, key: string | symbol | number, receiver: any) {

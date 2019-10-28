@@ -9,7 +9,7 @@ import { Domain } from './core/domain';
 import { init } from './core/init';
 import { reset } from './core/time-travel';
 
-// Proxy、Reflect、Symbol、Promise、WeakMap、Set
+// Proxy、Reflect、Symbol、Promise、Map、WeakMap、Set
 // "plugins": [
 //   "transform-decorators-legacy",
 //   "transform-class-properties"

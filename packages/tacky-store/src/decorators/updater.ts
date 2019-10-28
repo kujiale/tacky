@@ -5,7 +5,7 @@ import { Mutation, EMaterialType, BabelDescriptor } from '../interfaces';
 import { invariant } from '../utils/error';
 import { quacksLikeADecorator } from '../utils/decorator';
 
-function createMutation(target: object, name: string | symbol | number, original: any) {
+function createMutation(target: Object, name: string | symbol | number, original: any, isAtom: boolean) {
   const stringMethodName = convert2UniqueString(name);
   return function (...payload: any[]) {
     this[CURRENT_MATERIAL_TYPE] = EMaterialType.MUTATION;
@@ -14,7 +14,8 @@ function createMutation(target: object, name: string | symbol | number, original
       payload,
       type: EMaterialType.MUTATION,
       namespace: this[NAMESPACE],
-      original: bind(original, this) as Mutation
+      original: bind(original, this) as Mutation,
+      isAtom,
     });
     /**
      * @todo: 如果从 effect 进来，设置成 effect，否则设置成 default
@@ -24,13 +25,14 @@ function createMutation(target: object, name: string | symbol | number, original
 }
 
 /**
- * @mutation decorator, update state by mutation styling.
+ * decorator @mutation, update state by mutation styling.
  */
 export function mutation(...args: any[]) {
-  const decorator = (target: object, name: string | symbol | number, descriptor?: BabelDescriptor<any>): any => {
+  let isAtom: boolean = false;
+  const decorator = (target: Object, name: string | symbol | number, descriptor?: BabelDescriptor<any>): any => {
     // typescript only: @mutation method = () => {}
     if (descriptor === void 0) {
-      let mutationFunc;
+      let mutationFunc: Function;
       Object.defineProperty(target, name, {
         enumerable: true,
         configurable: true,
@@ -38,7 +40,7 @@ export function mutation(...args: any[]) {
           return mutationFunc;
         },
         set: function (original) {
-          mutationFunc = createMutation(target, name, original);
+          mutationFunc = createMutation(target, name, original, isAtom);
         },
       });
       return;
@@ -47,7 +49,7 @@ export function mutation(...args: any[]) {
     // babel/typescript: @mutation method() {}
     if (descriptor.value !== void 0) {
       const original: Mutation = descriptor.value;
-      descriptor.value = createMutation(target, name, original);
+      descriptor.value = createMutation(target, name, original, isAtom);
       return descriptor;
     }
 
@@ -56,7 +58,7 @@ export function mutation(...args: any[]) {
     descriptor.initializer = function () {
       invariant(!!initializer, 'The initializer of the descriptor doesn\'t exist, please compile it by using babel and correspond decorator plugin.');
 
-      return createMutation(target, name, initializer && initializer.call(this));
+      return createMutation(target, name, initializer && initializer.call(this), isAtom);
     };
 
     return descriptor;
@@ -67,5 +69,7 @@ export function mutation(...args: any[]) {
     return decorator.apply(null, args as any);
   }
   // @decorator(args)
+  isAtom = args[0] !== void 0 ? args[0] : false;
+
   return decorator;
 }

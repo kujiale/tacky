@@ -1,7 +1,7 @@
 import { applyMiddleware, use } from '../core/use'
 import { createStore } from '../core/store'
-// import effectMiddleware from '../middlewares/effect'
-// import loggerMiddleware from '../middlewares/logger'
+import effectMiddleware from '../middlewares/effect'
+import loggerMiddleware from '../middlewares/logger'
 import { ctx } from '../const/config'
 import { compose } from '../utils/compose';
 import timeTravel from './time-travel';
@@ -18,13 +18,13 @@ export function init() {
 
   isRunning = true;
 
-  // if (ctx.middleware.effect) {
-  //   use(effectMiddleware);
-  // }
+  if (ctx.middleware.effect) {
+    use(effectMiddleware);
+  }
 
-  // if (ctx.middleware.logger) {
-  //   use(loggerMiddleware);
-  // }
+  if (ctx.middleware.logger) {
+    use(loggerMiddleware);
+  }
 
   const enhancers = [applyMiddleware()];
   let composeEnhancers = compose;

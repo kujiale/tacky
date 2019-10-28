@@ -33,14 +33,6 @@ export function stick(...args: any[]) {
           this.unsubscribeHandler = store.subscribe(() => {
             this.forceUpdate();
           }, _this);
-          /*
-          * Trigger action on target component didMount is faster than subscribe listeners.
-          * TACKY must fetch latest state manually to solve the problems above.
-          */
-          /**
-           * @todo need to be confirmed.
-           */
-          // callback();
         }
 
         componentWillUnmount() {
@@ -95,14 +87,6 @@ export function stick(...args: any[]) {
         this.unsubscribeHandler = store.subscribe(() => {
           callback();
         }, _this);
-        /*
-         * Trigger action on target component didMount is faster than subscribe listeners.
-         * TACKY must fetch latest state manually to solve the problems above.
-         */
-        /**
-         * @todo need to be confirmed.
-         */
-        // callback();
       }
 
       componentWillUnmount() {

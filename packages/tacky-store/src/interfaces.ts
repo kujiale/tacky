@@ -3,7 +3,7 @@ import { Component } from 'react';
 
 export type MiddlewareParam = {
   dispatch: (action: DispatchedAction) => DispatchedAction,
-  getState: (namespace?: string) => ModuleState | GlobalStateTree
+  getState: (namespace?: string) => ModuleState
 }
 
 export interface Middleware {
@@ -13,7 +13,7 @@ export interface Middleware {
 export interface Store {
   dispatch: (action: DispatchedAction) => DispatchedAction,
   subscribe: (listener: Function, componentInstanceUid: Component) => () => void,
-  getState: (namespace?: string) => ModuleState | GlobalStateTree
+  getState: (namespace?: string) => ModuleState
 }
 
 export interface AtomStateTree {
@@ -24,10 +24,6 @@ export interface AtomStateTree {
 
 export interface ModuleState {
   [key: string]: any
-}
-
-export interface GlobalStateTree {
-  [namespace: string]: AtomStateTree
 }
 
 export interface Mutation {
@@ -50,7 +46,8 @@ export interface DispatchedAction {
   payload: any[],
   type: EMaterialType,
   namespace: string,
-  original: Effect | Mutation
+  original: Effect | Mutation,
+  isAtom?: boolean;
 }
 
 export interface ConfigCtx {

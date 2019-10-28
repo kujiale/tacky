@@ -16,7 +16,6 @@ export function createStore(enhancer: (createStore: any) => Store) {
 
   const componentUUIDToListeners: WeakMap<Component, Function[]> = new WeakMap();
   let isUpdating: boolean = false;
-  let isInBatch: boolean = false;
 
   function getState(namespace?: string) {
     // invariant(!isUpdating, 'You may not call store.getState() while the mutation/reducer is executing.');
@@ -54,6 +53,10 @@ export function createStore(enhancer: (createStore: any) => Store) {
     }
   }
 
+  let isInBatch: boolean = false;
+  let dirtyJob: Function | undefined;
+  let isFlushing: boolean = true;
+
   function dispatch(action: DispatchedAction) {
     /**
      * @todo action name need to record
@@ -64,9 +67,44 @@ export function createStore(enhancer: (createStore: any) => Store) {
       type,
       namespace,
       original,
+      isAtom,
     } = action;
 
     invariant(!isUpdating, 'Cannot trigger other mutation while the current mutation is executing.');
+
+    const callback = () => {
+      if (!isFlushing) {
+        return;
+      }
+      if (historyCollector.waitTriggerComponentIds.length > 0) {
+        const ids = deduplicate(historyCollector.waitTriggerComponentIds);
+        const pendingListeners: Function[] = [];
+
+        for (let index = 0; index < ids.length; index++) {
+          const cid = ids[index];
+          const listeners = componentUUIDToListeners.get(cid) || [];
+          pendingListeners.push(...listeners);
+        }
+
+        ReactDOM.unstable_batchedUpdates(() => {
+          for (let index = 0; index < pendingListeners.length; index++) {
+            const listener = pendingListeners[index];
+            listener();
+          }
+        });
+      }
+      if (ctx.timeTravel.isActive) {
+        historyCollector.save();
+      }
+      historyCollector.endBatch();
+      isInBatch = false;
+      dirtyJob = void 0;
+    }
+
+    if (isAtom) {
+      // immediately flush previous dirty job
+      dirtyJob && dirtyJob();
+    }
 
     try {
       isUpdating = true;
@@ -81,30 +119,15 @@ export function createStore(enhancer: (createStore: any) => Store) {
 
     if (!isInBatch) {
       isInBatch = true;
-      nextTick(() => {
-        if (historyCollector.waitTriggerComponentIds.length > 0) {
-          const ids = deduplicate(historyCollector.waitTriggerComponentIds);
-          const pendingListeners: Function[] = [];
+      isFlushing = true;
 
-          for (let index = 0; index < ids.length; index++) {
-            const cid = ids[index];
-            const listeners = componentUUIDToListeners.get(cid) || [];
-            pendingListeners.push(...listeners);
-          }
-
-          ReactDOM.unstable_batchedUpdates(() => {
-            for (let index = 0; index < pendingListeners.length; index++) {
-              const listener = pendingListeners[index];
-              listener();
-            }
-          });
-        }
-        if (ctx.timeTravel.isActive) {
-          historyCollector.save();
-        }
-        historyCollector.endBatch();
-        isInBatch = false;
-      });
+      if (isAtom) {
+        callback();
+        isFlushing = false;
+      } else {
+        dirtyJob = callback;
+        nextTick(callback);
+      }
     }
 
     return action;
