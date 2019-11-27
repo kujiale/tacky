@@ -200,11 +200,11 @@ Sometimes, we need some extra custom or third party's middlewares to handle the 
 import Sticky from '@qunhe/sticky'
 import { createEpicMiddleware } from 'redux-observable'
 
-Sticky.use(({ dispatch, getState }) => next => (action) => {
+Sticky.use(({ dispatch }) => next => (action) => {
   return next(action)
 })
 // if we have multiple middlewares
-Sticky.use([({ dispatch, getState }) => next => (action) => {
+Sticky.use([({ dispatch }) => next => (action) => {
   return next(action)
 }, createEpicMiddleware()])
 ```

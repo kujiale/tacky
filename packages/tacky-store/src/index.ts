@@ -7,7 +7,7 @@ import { effect } from './decorators/effect';
 import { state } from './decorators/state';
 import { Domain } from './core/domain';
 import { init } from './core/init';
-import { reset } from './core/time-travel';
+import { undo, redo, getTimeTravelStatus } from './core/collector';
 
 // Proxy、Reflect、Symbol、Promise、Map、WeakMap、Set
 // "plugins": [
@@ -25,7 +25,9 @@ export default {
   state,
   Domain,
   init,
-  reset,
+  undo,
+  redo,
+  getTimeTravelStatus,
 }
 
 export {
@@ -38,5 +40,7 @@ export {
   state,
   Domain,
   init,
-  reset,
+  undo,
+  redo,
+  getTimeTravelStatus,
 }

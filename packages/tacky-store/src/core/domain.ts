@@ -2,7 +2,6 @@ import { CURRENT_MATERIAL_TYPE, NAMESPACE } from '../const/symbol';
 import { EMaterialType, Mutation } from '../interfaces';
 import { isPlainObject, convert2UniqueString, hasOwn, isObject, bind } from '../utils/common';
 import { invariant } from '../utils/error';
-import timeTravel from './time-travel';
 import generateUUID from '../utils/uuid';
 import { depCollector, historyCollector, EOperationTypes } from './collector';
 import { canObserve } from '../utils/decorator';
@@ -20,14 +19,9 @@ export class Domain<S = {}> {
   constructor() {
     const target = Object.getPrototypeOf(this);
     const domainName = target.constructor.name || 'TACKY_DOMAIN';
-    const namespace = generateUUID();
+    const namespace = `${domainName}_${generateUUID()}`;
     this[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
     this[NAMESPACE] = namespace;
-    timeTravel.init({
-      id: namespace,
-      type: domainName,
-      instance: this,
-    });
   }
 
   propertyGet(key: string | symbol | number) {
@@ -119,27 +113,6 @@ export class Domain<S = {}> {
   }
 
   /**
-   * lazy sync this domain initial snapshot
-   */
-  $lazySyncInitialSnapshot() {
-    timeTravel.syncInitialSnapshot(this[NAMESPACE]);
-  }
-
-  /**
-   * reset this domain instance to initial snapshot
-   */
-  $reset() {
-    timeTravel.reset(this[NAMESPACE]);
-  }
-
-  /**
-   * destroy this domain instance and all related things to release memory.
-   */
-  $destroy() {
-    timeTravel.destroy(this[NAMESPACE]);
-  }
-
-  /**
    * the syntax sweet of updating state out of mutation
    */
   $update<K extends keyof S>(obj: Pick<S, K> | S, actionName?: string): void {
@@ -177,10 +150,10 @@ export class Domain<S = {}> {
     }
     // update state after store init
     store.dispatch({
-      name: actionName || generateUUID(),
+      name: actionName || `$update_${generateUUID()}`,
       payload: [],
       type: EMaterialType.UPDATE,
-      namespace: this[NAMESPACE],
+      domain: this,
       original: bind(original, this) as Mutation
     });
     this[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;

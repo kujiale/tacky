@@ -1,6 +1,8 @@
 import { includes } from '../utils/common';
 import { ctx } from '../const/config';
 import { Component } from 'react';
+import { store } from './store';
+import generateUUID from '../utils/uuid';
 
 export interface KeyToComponentIdsMap {
   [key: string]: Component[];
@@ -197,6 +199,74 @@ class HistoryCollector {
     this.currentHistoryIdSet = void 0;
   }
 
+  canUndo() {
+    return this.cursor >= 0;
+  }
+
+  canRedo() {
+    return this.cursor < this.transactionHistories.length - 1;
+  }
+
+  /**
+   * @todo support multiple steps
+   * revert to the previous history status
+   */
+  undo(stepNum: number = 1) {
+    if (!this.canUndo()) {
+      return;
+    }
+    const currentHistory = this.transactionHistories[this.cursor];
+    const original = () => {
+      currentHistory.historyKey.forEach(target => {
+        const keyToDiffObj = currentHistory.history.get(target);
+        if (keyToDiffObj) {
+          const keys = Object.keys(keyToDiffObj);
+          for (let i = 0; i < keys.length; i++) {
+            const propKey = keys[i];
+            target[propKey] = keyToDiffObj[propKey].beforeUpdate;
+          }
+        }
+      });
+    };
+    store.dispatch({
+      name: `$timeTravel_${generateUUID()}`,
+      payload: [],
+      original,
+      isInner: true,
+    });
+    this.cursor -= 1;
+  }
+
+  /**
+   * @todo support multiple steps
+   * apply the next history status
+   */
+  redo(stepNum: number = 1) {
+    if (!this.canRedo()) {
+      return;
+    }
+    this.cursor += 1;
+    const currentHistory = this.transactionHistories[this.cursor];
+    const original = () => {
+      currentHistory.historyKey.forEach(target => {
+        const keyToDiffObj = currentHistory.history.get(target);
+        if (keyToDiffObj) {
+          const keys = Object.keys(keyToDiffObj);
+          for (let i = 0; i < keys.length; i++) {
+            const propKey = keys[i];
+            target[propKey] = keyToDiffObj[propKey].didUpdate;
+          }
+        }
+      });
+    };
+    store.dispatch({
+      name: `$timeTravel_${generateUUID()}`,
+      payload: [],
+      original,
+      isInner: true,
+    });
+  }
+
   save() {
     if (this.cursor === this.transactionHistories.length - 1) {
       this.transactionHistories.push({
@@ -210,12 +280,29 @@ class HistoryCollector {
         historyKey: this.currentHistoryIdSet!,
         history: this.currentHistory!,
       });
+      this.cursor += 1;
     }
 
     if (this.transactionHistories.length > ctx.timeTravel.maxStepNumber) {
       this.transactionHistories.shift();
+      this.cursor -= 1;
     }
   }
 }
 
 export const historyCollector = new HistoryCollector();
+
+export const undo = (stepNum: number = 1) => {
+  historyCollector.undo(stepNum);
+};
+
+export const redo = (stepNum: number = 1) => {
+  historyCollector.redo(stepNum);
+};
+
+export const getTimeTravelStatus = () => {
+  return {
+    canUndo: historyCollector.canUndo(),
+    canRedo: historyCollector.canRedo(),
+  };
+}

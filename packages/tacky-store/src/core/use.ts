@@ -20,7 +20,7 @@ export function applyMiddleware() {
         `Other middleware would not be applied to this dispatch.`);
     };
     const middlewareAPI = {
-      getState: store.getState,
+      // getState: store.getState,
       dispatch: (...args: any[]) => dispatch(...args)
     };
     const chain = middlewares.map(middleware => middleware(middlewareAPI));

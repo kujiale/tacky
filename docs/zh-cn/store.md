@@ -377,14 +377,13 @@ ReactDOM.render(
 ```typescript
 type Param = {
   dispatch: (action: DispatchedAction) => DispatchedAction,
-  getState: (name?: string) => ModuleState | State
 }
 type middleware = (param: Param) => (next) => (action: DispatchedAction) => (action: DispatchedAction) => DispatchedAction
 type use = (middleware: middleware | middleware[]) => void
 ```
 **@tacky/store** 内置了 effect 和 logger 中间件，effect 默认开启，logger 默认关闭，effect 中间件上面已经介绍过了，而 logger 是用来打日志的，可以看到变化前后的 state 值，你还可以提供自定义的中间件来触达 action 的执行过程，中间件的写法保留了 **redux** 中间件的写法，你可以像下面这样使用 use 方法添加中间件：
 ```js
-const middleware = ({ dispatch, getState }) => (next) => (action) => {
+const middleware = ({ dispatch }) => (next) => (action) => {
   // balabala...
   const nextHandler = next(action)
   // peipeipei...

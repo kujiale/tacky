@@ -3,17 +3,15 @@ import { Component } from 'react';
 
 export type MiddlewareParam = {
   dispatch: (action: DispatchedAction) => DispatchedAction,
-  getState: (namespace?: string) => ModuleState
 }
 
 export interface Middleware {
-  ({ dispatch, getState }: MiddlewareParam): (next: any) => (action: DispatchedAction) => any
+  ({ dispatch }: MiddlewareParam): (next: any) => (action: DispatchedAction) => any
 }
 
 export interface Store {
   dispatch: (action: DispatchedAction) => DispatchedAction,
   subscribe: (listener: Function, componentInstanceUid: Component) => () => void,
-  getState: (namespace?: string) => ModuleState
 }
 
 export interface AtomStateTree {
@@ -42,12 +40,13 @@ export enum EMaterialType {
 }
 
 export interface DispatchedAction {
-  name?: string,
   payload: any[],
-  type: EMaterialType,
-  namespace: string,
   original: Effect | Mutation,
+  name?: string,
+  type?: EMaterialType,
+  domain?: Domain,
   isAtom?: boolean;
+  isInner?: boolean;
 }
 
 export interface ConfigCtx {
@@ -58,7 +57,6 @@ export interface ConfigCtx {
   timeTravel: {
     isActive: boolean,
     maxStepNumber: number,
-    keepInitialSnapshot: boolean,
   },
   devTool: boolean,
 }

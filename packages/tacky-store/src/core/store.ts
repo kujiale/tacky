@@ -17,17 +17,6 @@ export function createStore(enhancer: (createStore: any) => Store) {
   const componentUUIDToListeners: WeakMap<Component, Function[]> = new WeakMap();
   let isUpdating: boolean = false;
 
-  function getState(namespace?: string) {
-    // invariant(!isUpdating, 'You may not call store.getState() while the mutation/reducer is executing.');
-
-    // if (namespace) {
-    //   const atom = DomainStore.globalStateTree[namespace] as AtomStateTree;
-    //   return atom.plainObject;
-    // }
-
-    // return DomainStore.globalStateTree;
-  }
-
   function subscribe(listener: Function, uuid: Component) {
     let isSubscribed = true;
     const listeners = componentUUIDToListeners.get(uuid);
@@ -65,9 +54,10 @@ export function createStore(enhancer: (createStore: any) => Store) {
       name,
       payload,
       type,
-      namespace,
+      domain,
       original,
       isAtom,
+      isInner = false,
     } = action;
 
     invariant(!isUpdating, 'Cannot trigger other mutation while the current mutation is executing.');
@@ -93,7 +83,7 @@ export function createStore(enhancer: (createStore: any) => Store) {
           }
         });
       }
-      if (ctx.timeTravel.isActive) {
+      if (ctx.timeTravel.isActive && !isInner) {
         historyCollector.save();
       }
       historyCollector.endBatch();
@@ -108,7 +98,7 @@ export function createStore(enhancer: (createStore: any) => Store) {
 
     try {
       isUpdating = true;
-      if (type !== EMaterialType.MUTATION && type !== EMaterialType.UPDATE) {
+      if (!isInner && (type !== EMaterialType.MUTATION && type !== EMaterialType.UPDATE)) {
         return;
       }
       const currentMutation = original as Mutation;
@@ -136,6 +126,5 @@ export function createStore(enhancer: (createStore: any) => Store) {
   return {
     dispatch,
     subscribe,
-    getState,
   };
 }

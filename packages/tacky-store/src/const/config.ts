@@ -9,7 +9,6 @@ export let ctx: ConfigCtx = {
   timeTravel: {
     isActive: false,
     maxStepNumber: 5,
-    keepInitialSnapshot: false,
   },
   devTool: false,
 };

@@ -188,7 +188,7 @@
 	"Creates middleware": {
 		"prefix": "tmiddleware",
 		"body": [
-			"const ${1:${TM_FILENAME_BASE/(-)(\\w+)(\\..+)?/${2:/capitalize}/g}Middleware} = ({ dispatch, getState }) => (next) => (action) => {",
+			"const ${1:${TM_FILENAME_BASE/(-)(\\w+)(\\..+)?/${2:/capitalize}/g}Middleware} = ({ dispatch }) => (next) => (action) => {",
 			"\t$0",
 			"\treturn next(action);",
 			"};",

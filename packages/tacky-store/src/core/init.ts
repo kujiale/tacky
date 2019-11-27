@@ -4,7 +4,6 @@ import effectMiddleware from '../middlewares/effect'
 import loggerMiddleware from '../middlewares/logger'
 import { ctx } from '../const/config'
 import { compose } from '../utils/compose';
-import timeTravel from './time-travel';
 import { invariant } from '../utils/error';
 import { isSupportProxy, isSupportSymbol } from '../utils/lang';
 
@@ -36,8 +35,4 @@ export function init() {
   const enhancer = composeEnhancers(...enhancers);
 
   createStore(enhancer);
-
-  if (ctx.timeTravel.keepInitialSnapshot) {
-    timeTravel.syncAllInitialSnapshot();
-  }
 }

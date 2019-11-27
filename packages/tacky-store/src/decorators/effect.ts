@@ -1,6 +1,6 @@
-import { ctx } from '../const/config'
+import { ctx } from '../const/config';
 import { store } from '../core/store';
-import { NAMESPACE, CURRENT_MATERIAL_TYPE } from '../const/symbol';
+import { CURRENT_MATERIAL_TYPE } from '../const/symbol';
 import { bind, convert2UniqueString } from '../utils/common';
 import { Effect, EMaterialType, BabelDescriptor } from '../interfaces';
 import { invariant } from '../utils/error';
@@ -17,7 +17,7 @@ function createEffect(target: Object, name: string | symbol | number, original: 
       name: stringMethodName,
       payload,
       type: EMaterialType.EFFECT,
-      namespace: this[NAMESPACE],
+      domain: this,
       original: bind(original, this) as Effect
     });
     this[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
