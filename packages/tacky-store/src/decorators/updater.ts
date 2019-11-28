@@ -8,6 +8,7 @@ import { quacksLikeADecorator } from '../utils/decorator';
 function createMutation(target: Object, name: string | symbol | number, original: any, isAtom: boolean) {
   const stringMethodName = convert2UniqueString(name);
   return function (...payload: any[]) {
+    const prevType: EMaterialType = this[CURRENT_MATERIAL_TYPE];
     this[CURRENT_MATERIAL_TYPE] = EMaterialType.MUTATION;
     store.dispatch({
       name: stringMethodName,
@@ -17,10 +18,7 @@ function createMutation(target: Object, name: string | symbol | number, original
       original: bind(original, this) as Mutation,
       isAtom,
     });
-    /**
-     * @todo: 如果从 effect 进来，设置成 effect，否则设置成 default
-     */
-    this[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
+    this[CURRENT_MATERIAL_TYPE] = prevType === EMaterialType.EFFECT ? EMaterialType.EFFECT : EMaterialType.DEFAULT;
   };
 }
 
