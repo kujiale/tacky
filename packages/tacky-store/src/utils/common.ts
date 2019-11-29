@@ -39,30 +39,6 @@ export function nextTick(fn?: () => void): Promise<void> {
   return fn ? promise.then(fn) : promise;
 }
 
-let isFlushing = false;
-const jobQueue: Function[] = [];
-
-export function queueJob(job: () => void) {
-  if (jobQueue.indexOf(job) === -1) {
-    jobQueue.push(job);
-    if (!isFlushing) {
-      isFlushing = true;
-      nextTick(() => {
-        let job = jobQueue.shift();
-        while (job !== void 0) {
-          try {
-            job();
-          } catch (err) {
-            fail(err);
-          }
-          job = jobQueue.shift();
-        }
-        isFlushing = false;
-      });
-    }
-  }
-}
-
 export const hasOwn = (
   val: object,
   key: string | symbol | number

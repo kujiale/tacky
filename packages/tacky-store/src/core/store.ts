@@ -44,12 +44,9 @@ export function createStore(enhancer: (createStore: any) => Store) {
 
   let isInBatch: boolean = false;
   let dirtyJob: Function | undefined;
-  let isFlushing: boolean = true;
+  let needCreateRestSyncJobTrigger: boolean = true;
 
   function dispatch(action: DispatchedAction) {
-    /**
-     * @todo action name need to record
-     */
     const {
       name,
       payload,
@@ -63,9 +60,6 @@ export function createStore(enhancer: (createStore: any) => Store) {
     invariant(!isUpdating, 'Cannot trigger other mutation while the current mutation is executing.');
 
     const callback = () => {
-      if (!isFlushing) {
-        return;
-      }
       if (historyCollector.waitTriggerComponentIds.length > 0) {
         const ids = deduplicate(historyCollector.waitTriggerComponentIds);
         const pendingListeners: Function[] = [];
@@ -91,9 +85,15 @@ export function createStore(enhancer: (createStore: any) => Store) {
       dirtyJob = void 0;
     }
 
+    if (!isInBatch && dirtyJob === void 0) {
+      dirtyJob = callback;
+    }
+
     if (isAtom) {
-      // immediately flush previous dirty job
-      dirtyJob && dirtyJob();
+      if (historyCollector.waitTriggerComponentIds.length > 0) {
+        // flush previous job
+        dirtyJob && dirtyJob();
+      }
     }
 
     try {
@@ -109,14 +109,16 @@ export function createStore(enhancer: (createStore: any) => Store) {
 
     if (!isInBatch) {
       isInBatch = true;
-      isFlushing = true;
-
       if (isAtom) {
+        // immediately execute
         callback();
-        isFlushing = false;
-      } else {
-        dirtyJob = callback;
-        nextTick(callback);
+      }
+      if (needCreateRestSyncJobTrigger) {
+        nextTick(() => {
+          dirtyJob && dirtyJob();
+          needCreateRestSyncJobTrigger = true;
+        });
+        needCreateRestSyncJobTrigger = false;
       }
     }
 
