@@ -8,6 +8,19 @@
 > - :house:      [Internal]
 > - :nail_care:  [Polish]
 
+## 2019-11-29
+@tacky/store 2.0.3 released.
+
+* remove `reset`
+* remove domain `lazyLoad、destroy`
+* support time travelling, add `undo、redo、getTimeTravelStatus`
+* enhance inner updating rule
+* support graph data structure
+* add transcation rule
+* higher updating performance
+* lower memory cost
+* fix some bugs
+
 ## 2019-06-16
 @tacky/store 1.0.13 released.
 

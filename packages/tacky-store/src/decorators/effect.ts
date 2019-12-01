@@ -8,6 +8,7 @@ import { quacksLikeADecorator } from '../utils/decorator';
 
 /**
  * @todo: enhance effect feature, such as takeLead, takeLast
+ * @todo: effect inner mutation cannot be record in history collector dependently.
  */
 function createEffect(target: Object, name: string | symbol | number, original: any) {
   const stringMethodName = convert2UniqueString(name);
