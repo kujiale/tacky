@@ -3,11 +3,13 @@ import ErrorBoundary from './ErrorBoundary';
 import { store } from '../core/store';
 import { depCollector } from '../core/collector';
 
+export function stick<P extends object>(arg: React.ComponentType<P>): React.ComponentType<P>;
+export function stick(): <P extends object>(Target: React.ComponentType<P>) => React.ComponentType<P>;
 /**
  * Returns a high order component with auto refresh feature.
  */
-export function stick(...args: any[]) {
-  const decorator = <P extends object>(Target: React.ComponentType<P>) => {
+export function stick<P extends object>(arg?: React.ComponentType<P>) {
+  const decorator = <P extends object>(Target: React.ComponentType<P>): React.ComponentType<P> => {
     // const displayName: string = Target.displayName || Target.name || '<TACKY_COMPONENT>';
     let _this: React.Component;
     // Function component with do not have this context
@@ -109,12 +111,12 @@ export function stick(...args: any[]) {
     return ObservableTargetComponent;
   };
 
-  if (args.length === 1 && typeof args[0] === 'function') {
-    // @decorator
-    return decorator.apply(null, args as any);
+  if (arg === void 0) {
+    // @stick()
+    return decorator;
   }
-  // @decorator(args)
-  return decorator;
+  // @stick
+  return decorator.call(null, arg);
 }
 
 // based on https://github.com/mridgway/hoist-non-react-statics/blob/master/src/index.js
