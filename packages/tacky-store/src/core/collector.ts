@@ -9,6 +9,24 @@ export interface KeyToComponentIdsMap {
 };
 
 export type TargetToKeysMap = Map<object, string[]>;
+
+const isInBlackList = (propKey: string) => {
+  const blackList = {
+    constructor: true,
+    properties: true,
+    propertyGet: true,
+    propertySet: true,
+    proxySet: true,
+    proxyGet: true,
+    proxyReactive: true,
+    $update: true,
+    illegalAssignmentCheck: true,
+    dispatch: true,
+  };
+
+  return !!blackList[propKey];
+};
+
 /**
  * collect relation map of the dep key and the component ids
  */
@@ -25,19 +43,17 @@ class DepCollector {
     if (targetToKeysMap !== void 0) {
       for (let [targetKey, propKeys] of targetToKeysMap) {
         const keyToComponentIdsMap = this.dependencyMap.get(targetKey);
-        if (keyToComponentIdsMap !== void 0) {
+        if (keyToComponentIdsMap !== void 0 && Object.keys(keyToComponentIdsMap).length > 0) {
           for (let index = 0; index < propKeys.length; index++) {
             const propKey = propKeys[index];
             let componentIds = keyToComponentIdsMap[propKey];
-            if (componentIds !== void 0) {
+            if (componentIds !== void 0 && componentIds.length > 0) {
               keyToComponentIdsMap[propKey] = componentIds.filter(cid => cid !== id);
-            }
-            if (componentIds === void 0 || componentIds.length === 0) {
+            } else if (componentIds === void 0 || componentIds.length === 0) {
               delete keyToComponentIdsMap[propKey];
             }
           }
-        }
-        if (keyToComponentIdsMap === void 0 || Object.keys(keyToComponentIdsMap).length === 0) {
+        } else if (keyToComponentIdsMap === void 0 || Object.keys(keyToComponentIdsMap).length === 0) {
           this.dependencyMap.delete(targetKey);
         }
       }
@@ -51,6 +67,9 @@ class DepCollector {
   }
 
   collect(targetKey: object, propKey: string) {
+    if (isInBlackList(propKey)) {
+      return;
+    }
     const stackLength = this.componentIdStack.length;
     if (stackLength === 0) {
       return;
