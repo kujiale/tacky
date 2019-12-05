@@ -1,9 +1,13 @@
 import { isSymbol } from './lang';
 import generateUUID from './uuid';
-import { fail } from './error';
+import { Domain } from '../core/domain';
 
 export function isObject(value: any): boolean {
   return value !== null && typeof value === "object"
+}
+
+export function isDomain(value: any): boolean {
+  return value instanceof Domain;
 }
 
 // {}

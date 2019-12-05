@@ -1,6 +1,6 @@
 import { CURRENT_MATERIAL_TYPE, NAMESPACE } from '../const/symbol';
 import { EMaterialType, Mutation } from '../interfaces';
-import { isPlainObject, convert2UniqueString, hasOwn, isObject, bind } from '../utils/common';
+import { isPlainObject, convert2UniqueString, hasOwn, isObject, bind, isDomain } from '../utils/common';
 import { invariant } from '../utils/error';
 import generateUUID from '../utils/uuid';
 import { depCollector, historyCollector, EOperationTypes } from './collector';
@@ -30,7 +30,7 @@ export class Domain<S = {}> {
 
     depCollector.collect(this, stringKey);
 
-    return isObject(v) ? this.proxyReactive(v) : v;
+    return isObject(v) && !isDomain(v) ? this.proxyReactive(v) : v;
   }
 
   propertySet(key: string | symbol | number, v: any) {
@@ -81,7 +81,7 @@ export class Domain<S = {}> {
 
     depCollector.collect(target, stringKey);
 
-    return isObject(res) ? this.proxyReactive(res) : res;
+    return isObject(res) && !isDomain(res) ? this.proxyReactive(res) : res;
   }
 
   /**
@@ -121,7 +121,7 @@ export class Domain<S = {}> {
   }
 
   /**
-   * only in @mutation/$update/constructor can assign value to @state, otherwise throw error.
+   * observed value could be assigned value to @state only in @mutation/$update, otherwise throw error.
    */
   private illegalAssignmentCheck(target: object, stringKey: string) {
     if (depCollector.isObserved(target, stringKey)) {
