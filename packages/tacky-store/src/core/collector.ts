@@ -161,13 +161,12 @@ class HistoryCollector {
   public cursor: number = -1;
 
   collect(target: object, key: string, payload: HistoryCollectorPayload) {
-    this.collectComponentId(target, key);
+    const { beforeUpdate, didUpdate, type } = payload;
+    this.collectComponentId(target, key, type);
 
     if (!ctx.timeTravel.isActive) {
       return;
     }
-
-    const { beforeUpdate, didUpdate } = payload;
     if (this.currentHistoryIdSet === void 0) {
       this.currentHistoryIdSet = new Set();
     }
@@ -197,12 +196,13 @@ class HistoryCollector {
     this.currentHistoryIdSet.add(target);
   }
 
-  collectComponentId(target: object, key: string) {
+  collectComponentId(target: object, key: string, type: EOperationTypes) {
     const keyToComponentIdsMap = depCollector.dependencyMap.get(target);
     if (keyToComponentIdsMap === void 0) {
       return;
     }
-    const idsArray = keyToComponentIdsMap[key];
+    const tempKey = type === EOperationTypes.ADD ? (Array.isArray(target) ? 'length' : EOperationTypes.ITERATE) : key;
+    const idsArray = keyToComponentIdsMap[tempKey];
     if (idsArray === void 0 || idsArray.length === 0) {
       return;
     }

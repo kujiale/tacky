@@ -84,6 +84,11 @@ export class Domain<S = {}> {
     return isObject(res) && !isDomain(res) ? this.proxyReactive(res) : res;
   }
 
+  private proxyOwnKeys(target: any): (string | number | symbol)[] {
+    depCollector.collect(target, EOperationTypes.ITERATE);
+    return Reflect.ownKeys(target);
+  }
+
   /**
    * proxy value could be boolean, string, number, undefined, null, custom instance, array[], plainObject{}
    * @todo: support Map、Set、WeakMap、WeakSet
@@ -105,6 +110,7 @@ export class Domain<S = {}> {
     const proxy = new Proxy(raw, {
       get: bind(_this.proxyGet, _this),
       set: bind(_this.proxySet, _this),
+      ownKeys: bind(_this.proxyOwnKeys, _this),
     });
     proxyCache.set(proxy, raw);
     rawCache.set(raw, proxy);
