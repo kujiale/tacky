@@ -134,7 +134,7 @@ export class Domain<S = {}> {
       invariant(
         this[CURRENT_MATERIAL_TYPE] === EMaterialType.MUTATION ||
         this[CURRENT_MATERIAL_TYPE] === EMaterialType.UPDATE,
-        'You cannot assign value to (decorated @state property) by (this.a = \'xxx\';) directly. Please use mutation or $update({}).'
+        'You cannot update value to observed \'@state property\' directly. Please use mutation or $update({}).'
       );
     }
   }
