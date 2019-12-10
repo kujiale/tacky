@@ -135,7 +135,8 @@ export class Domain<S = {}> {
       const firstLevelMaterial = materialCallStack[0] === void 0 ? this[CURRENT_MATERIAL_TYPE] : materialCallStack[0];
       invariant(
         firstLevelMaterial === EMaterialType.MUTATION ||
-        firstLevelMaterial === EMaterialType.UPDATE,
+        firstLevelMaterial === EMaterialType.UPDATE ||
+        firstLevelMaterial === EMaterialType.TIME_TRAVEL,
         'You cannot update value to observed \'@state property\' directly. Please use mutation or $update({}).'
       );
     }

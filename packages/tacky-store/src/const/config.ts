@@ -16,6 +16,6 @@ export let ctx: ConfigCtx = {
 /**
  * framework global config method.
  */
-export function config(conf: ConfigCtx) {
+export function config(conf: Partial<ConfigCtx>) {
   ctx = deepMerge(ctx, conf);
 }

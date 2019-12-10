@@ -3,6 +3,8 @@ import { ctx } from '../const/config';
 import { Component } from 'react';
 import { store } from './store';
 import generateUUID from '../utils/uuid';
+import { materialCallStack } from './domain';
+import { EMaterialType } from '../interfaces';
 
 export interface KeyToComponentIdsMap {
   [key: string]: Component[];
@@ -247,12 +249,14 @@ class HistoryCollector {
         }
       });
     };
+    materialCallStack.push(EMaterialType.TIME_TRAVEL);
     store.dispatch({
       name: `$timeTravel_${generateUUID()}`,
       payload: [],
       original,
       isInner: true,
     });
+    materialCallStack.pop();
     this.cursor -= 1;
   }
 
@@ -278,12 +282,14 @@ class HistoryCollector {
         }
       });
     };
+    materialCallStack.push(EMaterialType.TIME_TRAVEL);
     store.dispatch({
       name: `$timeTravel_${generateUUID()}`,
       payload: [],
       original,
       isInner: true,
     });
+    materialCallStack.pop();
   }
 
   save() {

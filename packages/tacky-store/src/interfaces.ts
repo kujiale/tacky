@@ -37,6 +37,7 @@ export enum EMaterialType {
   MUTATION,
   UPDATE,
   EFFECT,
+  TIME_TRAVEL,
 }
 
 export interface DispatchedAction {
