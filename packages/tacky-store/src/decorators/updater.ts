@@ -4,12 +4,14 @@ import { bind, convert2UniqueString } from '../utils/common';
 import { Mutation, EMaterialType, BabelDescriptor } from '../interfaces';
 import { invariant } from '../utils/error';
 import { quacksLikeADecorator } from '../utils/decorator';
+import { materialCallStack } from '../core/domain';
 
 function createMutation(target: Object, name: string | symbol | number, original: any, isAtom: boolean) {
   const stringMethodName = convert2UniqueString(name);
   return function (...payload: any[]) {
     const prevType: EMaterialType = this[CURRENT_MATERIAL_TYPE];
     this[CURRENT_MATERIAL_TYPE] = EMaterialType.MUTATION;
+    materialCallStack.push(this[CURRENT_MATERIAL_TYPE]);
     store.dispatch({
       name: stringMethodName,
       payload,
@@ -19,6 +21,7 @@ function createMutation(target: Object, name: string | symbol | number, original
       isAtom,
     });
     this[CURRENT_MATERIAL_TYPE] = prevType === EMaterialType.EFFECT ? EMaterialType.EFFECT : EMaterialType.DEFAULT;
+    materialCallStack.pop();
   };
 }
 

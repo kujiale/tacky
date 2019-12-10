@@ -9,6 +9,7 @@ import { store } from './store';
 
 const proxyCache = new WeakMap<any, any>();
 const rawCache = new WeakMap<any, any>();
+export const materialCallStack: EMaterialType[] = [];
 
 /**
  * Framework base class 'Domain', class must be extends this base class which is need to be observable.
@@ -131,9 +132,10 @@ export class Domain<S = {}> {
    */
   private illegalAssignmentCheck(target: object, stringKey: string) {
     if (depCollector.isObserved(target, stringKey)) {
+      const firstLevelMaterial = materialCallStack[0] === void 0 ? this[CURRENT_MATERIAL_TYPE] : materialCallStack[0];
       invariant(
-        this[CURRENT_MATERIAL_TYPE] === EMaterialType.MUTATION ||
-        this[CURRENT_MATERIAL_TYPE] === EMaterialType.UPDATE,
+        firstLevelMaterial === EMaterialType.MUTATION ||
+        firstLevelMaterial === EMaterialType.UPDATE,
         'You cannot update value to observed \'@state property\' directly. Please use mutation or $update({}).'
       );
     }
@@ -148,10 +150,12 @@ export class Domain<S = {}> {
       }
     };
     this[CURRENT_MATERIAL_TYPE] = EMaterialType.UPDATE;
+    materialCallStack.push(this[CURRENT_MATERIAL_TYPE]);
     // update state before store init
     if (store === void 0) {
       original.call(this);
       this[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
+      materialCallStack.pop();
       return;
     }
     // update state after store init
@@ -163,5 +167,6 @@ export class Domain<S = {}> {
       original: bind(original, this) as Mutation
     });
     this[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
+    materialCallStack.pop();
   }
 }
