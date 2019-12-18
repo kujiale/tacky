@@ -43,7 +43,7 @@ class DepCollector {
   private clearCurrentComponentOldDeps(id: Component) {
     const targetToKeysMap = this.reverseDependencyMap.get(id);
     if (targetToKeysMap !== void 0) {
-      for (let [targetKey, propKeys] of targetToKeysMap) {
+      targetToKeysMap.forEach((propKeys, targetKey) => {
         const keyToComponentIdsMap = this.dependencyMap.get(targetKey);
         if (keyToComponentIdsMap !== void 0 && Object.keys(keyToComponentIdsMap).length > 0) {
           for (let index = 0; index < propKeys.length; index++) {
@@ -58,7 +58,7 @@ class DepCollector {
         } else if (keyToComponentIdsMap === void 0 || Object.keys(keyToComponentIdsMap).length === 0) {
           this.dependencyMap.delete(targetKey);
         }
-      }
+      });
     }
   }
 

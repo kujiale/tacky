@@ -144,10 +144,10 @@ export class Domain<S = {}> {
 
   private dispatch(obj: object, actionName?: string) {
     const original = function () {
-      for (const key in obj) {
-        if (obj.hasOwnProperty(key)) {
-          this[key] = obj[key];
-        }
+      const keys = Object.keys(obj);
+      for (let i = 0, len = keys.length; i < len; i++) {
+        const key = keys[i];
+        this[key] = obj[key];
       }
     };
     this[CURRENT_MATERIAL_TYPE] = EMaterialType.UPDATE;

@@ -128,9 +128,11 @@ const hoistBlackList: any = {
 }
 
 function copyStaticProperties(base: any, target: any) {
-  Object.keys(base).forEach(key => {
-    if (base.hasOwnProperty(key) && hoistBlackList[key] === void 0) {
+  const keys = Object.keys(base);
+  for (let index = 0; index < keys.length; index++) {
+    const key = keys[index];
+    if (hoistBlackList[key] === void 0) {
       Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(base, key)!)
     }
-  });
+  }
 }
