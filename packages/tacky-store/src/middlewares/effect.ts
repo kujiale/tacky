@@ -6,7 +6,11 @@ function createEffectMiddleware(): Middleware {
 
     if (type === EMaterialType.EFFECT) {
       const effect = original as Effect;
-      await effect(...payload);
+      try {
+        await effect(...payload);
+      } catch (error) {
+        return error;
+      }
       return;
     }
 

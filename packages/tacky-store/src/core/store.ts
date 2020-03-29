@@ -5,6 +5,7 @@ import { nextTick, deduplicate, includes } from '../utils/common';
 import * as ReactDOM from 'react-dom';
 import { Component } from 'react';
 import { ctx } from '../const/config';
+import { materialCallStack } from './domain';
 
 export let store: Store;
 
@@ -77,12 +78,16 @@ export function createStore(enhancer: (createStore: any) => Store) {
           }
         });
       }
+      isInBatch = false;
+      dirtyJob = void 0;
+      if (ctx.timeTravel.isActive && includes(materialCallStack, EMaterialType.EFFECT)) {
+        historyCollector.endBatch(false);
+        return;
+      }
       if (ctx.timeTravel.isActive && !isInner) {
         historyCollector.save();
       }
       historyCollector.endBatch();
-      isInBatch = false;
-      dirtyJob = void 0;
     }
 
     if (!isInBatch && dirtyJob === void 0) {

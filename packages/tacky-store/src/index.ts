@@ -2,7 +2,7 @@ import { stick } from './components/stick';
 import { render } from './components/render';
 import { use } from './core/use';
 import { config } from './const/config';
-import { mutation } from './decorators/updater';
+import { mutation } from './decorators/mutation';
 import { effect } from './decorators/effect';
 import { state } from './decorators/state';
 import { Domain } from './core/domain';

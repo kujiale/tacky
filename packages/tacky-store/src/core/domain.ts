@@ -132,7 +132,8 @@ export class Domain<S = {}> {
    */
   private illegalAssignmentCheck(target: object, stringKey: string) {
     if (depCollector.isObserved(target, stringKey)) {
-      const firstLevelMaterial = materialCallStack[0] === void 0 ? this[CURRENT_MATERIAL_TYPE] : materialCallStack[0];
+      const length = materialCallStack.length;
+      const firstLevelMaterial = materialCallStack[length - 1] || EMaterialType.DEFAULT;
       invariant(
         firstLevelMaterial === EMaterialType.MUTATION ||
         firstLevelMaterial === EMaterialType.UPDATE ||
@@ -155,8 +156,9 @@ export class Domain<S = {}> {
     // update state before store init
     if (store === void 0) {
       original.call(this);
-      this[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
       materialCallStack.pop();
+      const length = materialCallStack.length;
+      this[CURRENT_MATERIAL_TYPE] = materialCallStack[length - 1] || EMaterialType.DEFAULT;
       return;
     }
     // update state after store init
@@ -167,7 +169,8 @@ export class Domain<S = {}> {
       domain: this,
       original: bind(original, this) as Mutation
     });
-    this[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
     materialCallStack.pop();
+    const length = materialCallStack.length;
+    this[CURRENT_MATERIAL_TYPE] = materialCallStack[length - 1] || EMaterialType.DEFAULT;
   }
 }

@@ -10,7 +10,7 @@ export interface Middleware {
 }
 
 export interface Store {
-  dispatch: (action: DispatchedAction) => DispatchedAction,
+  dispatch: (action: DispatchedAction) => DispatchedAction | Promise<DispatchedAction>,
   subscribe: (listener: Function, componentInstanceUid: Component) => () => void,
 }
 
@@ -33,7 +33,7 @@ export interface Effect {
 }
 
 export enum EMaterialType {
-  DEFAULT,
+  DEFAULT = 1,
   MUTATION,
   UPDATE,
   EFFECT,

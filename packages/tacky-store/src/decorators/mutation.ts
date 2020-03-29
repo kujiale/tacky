@@ -9,7 +9,6 @@ import { materialCallStack } from '../core/domain';
 function createMutation(target: Object, name: string | symbol | number, original: any, isAtom: boolean) {
   const stringMethodName = convert2UniqueString(name);
   return function (...payload: any[]) {
-    const prevType: EMaterialType = this[CURRENT_MATERIAL_TYPE];
     this[CURRENT_MATERIAL_TYPE] = EMaterialType.MUTATION;
     materialCallStack.push(this[CURRENT_MATERIAL_TYPE]);
     store.dispatch({
@@ -20,8 +19,9 @@ function createMutation(target: Object, name: string | symbol | number, original
       original: bind(original, this) as Mutation,
       isAtom,
     });
-    this[CURRENT_MATERIAL_TYPE] = prevType === EMaterialType.EFFECT ? EMaterialType.EFFECT : EMaterialType.DEFAULT;
     materialCallStack.pop();
+    const length = materialCallStack.length;
+    this[CURRENT_MATERIAL_TYPE] = materialCallStack[length - 1] || EMaterialType.DEFAULT;
   };
 }
 

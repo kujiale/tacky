@@ -211,9 +211,9 @@ class HistoryCollector {
     this.waitTriggerComponentIds.push(...idsArray);
   }
 
-  endBatch() {
+  endBatch(isClearHistory = true) {
     this.waitTriggerComponentIds = [];
-    if (!ctx.timeTravel.isActive) {
+    if (!ctx.timeTravel.isActive || !isClearHistory) {
       return;
     }
     this.currentHistory = void 0;

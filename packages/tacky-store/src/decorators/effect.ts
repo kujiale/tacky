@@ -1,27 +1,35 @@
 import { ctx } from '../const/config';
 import { store } from '../core/store';
 import { CURRENT_MATERIAL_TYPE } from '../const/symbol';
-import { bind, convert2UniqueString } from '../utils/common';
+import { bind, convert2UniqueString, includes } from '../utils/common';
 import { Effect, EMaterialType, BabelDescriptor } from '../interfaces';
 import { invariant } from '../utils/error';
 import { quacksLikeADecorator } from '../utils/decorator';
+import { materialCallStack } from '../core/domain';
+import { historyCollector } from '../core/collector';
 
 /**
  * @todo: enhance effect feature, such as takeLead, takeLast
- * @todo: effect inner mutation cannot be record in history collector dependently.
  */
 function createEffect(target: Object, name: string | symbol | number, original: any) {
   const stringMethodName = convert2UniqueString(name);
-  return function (...payload: any[]) {
+  return async function (...payload: any[]) {
     this[CURRENT_MATERIAL_TYPE] = EMaterialType.EFFECT;
-    store.dispatch({
+    materialCallStack.push(this[CURRENT_MATERIAL_TYPE]);
+    await store.dispatch({
       name: stringMethodName,
       payload,
       type: EMaterialType.EFFECT,
       domain: this,
       original: bind(original, this) as Effect
     });
-    this[CURRENT_MATERIAL_TYPE] = EMaterialType.DEFAULT;
+    materialCallStack.pop();
+    const length = materialCallStack.length;
+    this[CURRENT_MATERIAL_TYPE] = materialCallStack[length - 1] || EMaterialType.DEFAULT;
+    if (ctx.timeTravel.isActive && !includes(materialCallStack, EMaterialType.EFFECT)) {
+      historyCollector.save();
+      historyCollector.endBatch();
+    }
   };
 }
 
