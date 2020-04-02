@@ -3,9 +3,9 @@ import { quacksLikeADecorator } from '../utils/decorator';
 import { Domain } from '../core/domain';
 
 /**
- * state decorator, making the state observable.
+ * reactor decorator, making the reactor observable.
  */
-export function state(...args: any[]) {
+export function reactor(...args: any[]) {
   const decorator = function <T>(target: Object, property: string | symbol | number, descriptor?: BabelDescriptor<T>): any {
     const newDescriptor = {
       enumerable: true,
@@ -20,12 +20,12 @@ export function state(...args: any[]) {
       },
     };
 
-    // typescript only: (exp: @state() name: string = 'someone';)
+    // typescript only: (exp: @reactor() name: string = 'someone';)
     if (descriptor === void 0) {
       return Object.defineProperty(target, property, newDescriptor);
     }
 
-    // babel only: (exp: @state() name = 'someone';)
+    // babel only: (exp: @reactor() name = 'someone';)
     return newDescriptor;
   };
 

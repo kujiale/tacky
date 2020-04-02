@@ -128,7 +128,7 @@ export class Domain<S = {}> {
   }
 
   /**
-   * observed value could be assigned value to @state only in @mutation/$update, otherwise throw error.
+   * observed value could be assigned value to @reactor only in @mutation/$update, otherwise throw error.
    */
   private illegalAssignmentCheck(target: object, stringKey: string) {
     if (depCollector.isObserved(target, stringKey)) {
@@ -138,7 +138,7 @@ export class Domain<S = {}> {
         firstLevelMaterial === EMaterialType.MUTATION ||
         firstLevelMaterial === EMaterialType.UPDATE ||
         firstLevelMaterial === EMaterialType.TIME_TRAVEL,
-        'You cannot update value to observed \'@state property\' directly. Please use mutation or $update({}).'
+        'You cannot update value to observed \'@reactor property\' directly. Please use mutation or $update({}).'
       );
     }
   }

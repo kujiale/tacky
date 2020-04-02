@@ -3,12 +3,12 @@ import ErrorBoundary from './ErrorBoundary';
 import { store } from '../core/store';
 import { depCollector } from '../core/collector';
 
-export function stick<P extends object>(arg: React.ComponentType<P>): React.ComponentType<P>;
-export function stick(): <P extends object>(Target: React.ComponentType<P>) => React.ComponentType<P>;
+export function reactive<P extends object>(arg: React.ComponentType<P>): React.ComponentType<P>;
+export function reactive(): <P extends object>(Target: React.ComponentType<P>) => React.ComponentType<P>;
 /**
  * Returns a high order component with auto refresh feature.
  */
-export function stick<P extends object>(arg?: React.ComponentType<P>) {
+export function reactive<P extends object>(arg?: React.ComponentType<P>) {
   const decorator = <P extends object>(Target: React.ComponentType<P>): React.ComponentType<P> => {
     // const displayName: string = Target.displayName || Target.name || '<TACKY_COMPONENT>';
     let _this: React.Component;
@@ -112,10 +112,10 @@ export function stick<P extends object>(arg?: React.ComponentType<P>) {
   };
 
   if (arg === void 0) {
-    // @stick()
+    // @reactive()
     return decorator;
   }
-  // @stick
+  // @reactive
   return decorator.call(null, arg);
 }
 

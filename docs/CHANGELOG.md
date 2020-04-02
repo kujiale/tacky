@@ -8,6 +8,13 @@
 > - :house:      [Internal]
 > - :nail_care:  [Polish]
 
+## 2020-04-02
+@tacky/store 2.0.9 released.
+
+#### :boom: Modify api
+* @state -> @reactor
+* @stick -> @reactive
+
 ## 2019-11-29
 @tacky/store 2.0.3 released.
 

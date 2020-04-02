@@ -1,10 +1,10 @@
-import { stick } from './components/stick';
+import { reactive } from './components/reactive';
 import { render } from './components/render';
 import { use } from './core/use';
 import { config } from './const/config';
 import { mutation } from './decorators/mutation';
 import { effect } from './decorators/effect';
-import { state } from './decorators/state';
+import { reactor } from './decorators/reactor';
 import { Domain } from './core/domain';
 import { init } from './core/init';
 import { undo, redo, getTimeTravelStatus } from './core/collector';
@@ -16,13 +16,13 @@ import { undo, redo, getTimeTravelStatus } from './core/collector';
 // ]
 
 export default {
-  stick,
+  reactive,
   render,
   effect,
   mutation,
   use,
   config,
-  state,
+  reactor,
   Domain,
   init,
   undo,
@@ -31,13 +31,13 @@ export default {
 }
 
 export {
-  stick,
+  reactive,
   render,
   effect,
   mutation,
   use,
   config,
-  state,
+  reactor,
   Domain,
   init,
   undo,
