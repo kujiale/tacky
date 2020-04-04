@@ -25,6 +25,8 @@ function createMutation(target: Object, name: string | symbol | number, original
   };
 }
 
+export function mutation(target: Object, name: string | symbol | number, descriptor?: BabelDescriptor<any>): any;
+export function mutation(isAtom?: boolean): (target: Object, name: string | symbol | number, descriptor?: BabelDescriptor<any>) => any;
 /**
  * decorator @mutation, update state by mutation styling.
  */
@@ -66,10 +68,10 @@ export function mutation(...args: any[]) {
   }
 
   if (quacksLikeADecorator(args)) {
-    // @decorator
+    // @mutation
     return decorator.apply(null, args as any);
   }
-  // @decorator(args)
+  // @mutation(args)
   isAtom = args[0] !== void 0 ? args[0] : false;
 
   return decorator;

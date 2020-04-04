@@ -16,6 +16,7 @@ const isInBlackList = (propKey: string) => {
   const blackList = {
     constructor: true,
     properties: true,
+    reactorConfigMap: true,
     propertyGet: true,
     propertySet: true,
     proxySet: true,
@@ -162,11 +163,11 @@ class HistoryCollector {
   public waitTriggerComponentIds: Component[] = [];
   public cursor: number = -1;
 
-  collect(target: object, key: string, payload: HistoryCollectorPayload) {
+  collect(target: object, key: string, payload: HistoryCollectorPayload, isNeedRecord = true) {
     const { beforeUpdate, didUpdate, type } = payload;
     this.collectComponentId(target, key, type);
 
-    if (!ctx.timeTravel.isActive) {
+    if (!ctx.timeTravel.isActive || !isNeedRecord) {
       return;
     }
     if (this.currentHistoryIdSet === void 0) {

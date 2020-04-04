@@ -33,6 +33,8 @@ function createEffect(target: Object, name: string | symbol | number, original: 
   };
 }
 
+export function effect(target: Object, name: string | symbol | number, descriptor?: BabelDescriptor<any>): any;
+export function effect(): (target: Object, name: string | symbol | number, descriptor?: BabelDescriptor<any>) => any;
 /**
  * decorator @effect, handle some async process and effect.
  */
@@ -78,9 +80,9 @@ export function effect(...args: any[]) {
   }
 
   if (quacksLikeADecorator(args)) {
-    // @decorator
+    // @effect
     return decorator.apply(null, args as any);
   }
-  // @decorator(args)
+  // @effect(args)
   return decorator;
 }

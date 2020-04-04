@@ -6,16 +6,20 @@ import generateUUID from '../utils/uuid';
 import { depCollector, historyCollector, EOperationTypes } from './collector';
 import { canObserve } from '../utils/decorator';
 import { store } from './store';
+import { ReactorConfig } from '../decorators/reactor';
 
 const proxyCache = new WeakMap<any, any>();
 const rawCache = new WeakMap<any, any>();
+const rootKeyCache = new WeakMap<any, string>();
 export const materialCallStack: EMaterialType[] = [];
 
 /**
  * Framework base class 'Domain', class must be extends this base class which is need to be observable.
  */
 export class Domain<S = {}> {
+  // prompt: add property do not forget sync to black list
   private properties: { [key in keyof this]?: this[key] } = {};
+  private reactorConfigMap: { [key in keyof this]: ReactorConfig };
 
   constructor() {
     const target = Object.getPrototypeOf(this);
@@ -25,19 +29,21 @@ export class Domain<S = {}> {
     this[NAMESPACE] = namespace;
   }
 
-  propertyGet(key: string | symbol | number) {
+  propertyGet(key: string | symbol | number, config: ReactorConfig) {
     const stringKey = convert2UniqueString(key);
     const v = this.properties[stringKey];
+    this.reactorConfigMap[stringKey] = config;
 
     depCollector.collect(this, stringKey);
 
-    return isObject(v) && !isDomain(v) ? this.proxyReactive(v) : v;
+    return isObject(v) && !isDomain(v) && config.deepProxy ? this.proxyReactive(v, stringKey) : v;
   }
 
-  propertySet(key: string | symbol | number, v: any) {
+  propertySet(key: string | symbol | number, v: any, config: ReactorConfig) {
     const stringKey = convert2UniqueString(key);
     this.illegalAssignmentCheck(this, stringKey);
     const oldValue = this.properties[stringKey];
+    this.reactorConfigMap[stringKey] = config;
 
     if (oldValue !== v) {
       this.properties[stringKey] = v;
@@ -45,7 +51,7 @@ export class Domain<S = {}> {
         type: EOperationTypes.SET,
         beforeUpdate: oldValue,
         didUpdate: v,
-      });
+      }, config.isNeedRecord);
     }
   }
 
@@ -54,6 +60,7 @@ export class Domain<S = {}> {
     this.illegalAssignmentCheck(target, stringKey);
     const hadKey = hasOwn(target, key);
     const oldValue = target[key];
+    const rootKey = rootKeyCache.get(target)!;
     // do nothing if target is in the prototype chain
     if (target === proxyCache.get(receiver)) {
       const result = Reflect.set(target, key, value, receiver);
@@ -62,13 +69,13 @@ export class Domain<S = {}> {
           type: EOperationTypes.ADD,
           beforeUpdate: oldValue,
           didUpdate: value,
-        });
+        }, this.reactorConfigMap[rootKey].isNeedRecord);
       } else if (value !== oldValue) {
         historyCollector.collect(target, stringKey, {
           type: EOperationTypes.SET,
           beforeUpdate: oldValue,
           didUpdate: value,
-        });
+        }, this.reactorConfigMap[rootKey].isNeedRecord);
       }
       return result;
     }
@@ -79,10 +86,11 @@ export class Domain<S = {}> {
   private proxyGet(target: any, key: string | symbol | number, receiver: any) {
     const res = Reflect.get(target, key, receiver);
     const stringKey = convert2UniqueString(key);
+    const rootKey = rootKeyCache.get(target)!;
 
     depCollector.collect(target, stringKey);
 
-    return isObject(res) && !isDomain(res) ? this.proxyReactive(res) : res;
+    return isObject(res) && !isDomain(res) ? this.proxyReactive(res, rootKey) : res;
   }
 
   private proxyOwnKeys(target: any): (string | number | symbol)[] {
@@ -94,8 +102,9 @@ export class Domain<S = {}> {
    * proxy value could be boolean, string, number, undefined, null, custom instance, array[], plainObject{}
    * @todo: support Map、Set、WeakMap、WeakSet
    */
-  private proxyReactive(raw: object) {
+  private proxyReactive(raw: object, rootKey: string) {
     const _this = this;
+    rootKeyCache.set(raw, rootKey);
     // different props use same ref
     const refProxy = rawCache.get(raw);
     if (refProxy !== void 0) {
