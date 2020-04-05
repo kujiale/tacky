@@ -185,7 +185,7 @@ $ins2.isLoading; // still be false
 export class MyDomain extends Domain {
   @reactor isLoading = false;
   @reactor() list = [];
-  @reactor(true, true) prop = '';
+  @reactor(true, true) prop = 'prop';
 }
 ```
 
