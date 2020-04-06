@@ -23,7 +23,7 @@
 Waiting to translation.
 
 ## Questions
-Send email to me temporary. (feifan@qunhemail.com)
+Send email to me temporary. (darknight3@vip.qq.com)
 
 ## Changelog
 Detailed changes for each release are documented in the [changelog](CHANGELOG.md).

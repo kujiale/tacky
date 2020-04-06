@@ -32,7 +32,7 @@
 * <a href="https://kujiale.github.io/tacky/#/zh-cn/dev-tool" target="_blank">@tacky/dev-tool</a>
 
 ## 问题
-暂时先发我邮件. (feifan@qunhemail.com)
+暂时先发我邮件. (darknight3@vip.qq.com)
 
 ## 版本变更记录
 详细变更记录请看 [changelog](CHANGELOG.md).

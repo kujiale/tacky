@@ -44,7 +44,7 @@ Sticky is supported by most modern browsers except IE, because of sticky use **p
 ### License
 [MIT](http://opensource.org/licenses/MIT)
 
-Copyright (c) 2018-present, kujiale, feifan <feifan@qunhemail.com>
+Copyright (c) 2019-present, feifan <darknight3@vip.qq.com>
 
 ## API & Concept
 
