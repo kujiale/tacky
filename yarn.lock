@@ -2022,10 +2022,10 @@
   dependencies:
     type-detect "4.0.8"
 
-"@tacky/store@^2.0.11":
-  version "2.0.11"
-  resolved "https://registry.yarnpkg.com/@tacky/store/-/store-2.0.11.tgz#c92858143c51a2bc4ebc9820f1eef9405f0f22a8"
-  integrity sha512-SUBToyGOobJYJYBtYbrDjJ3Np6ltj3Xvz1LRpmXy1V0DDGznsObnKrvuDbMdtw+89qxHuRU0O4xjGO7LHl5YCw==
+"@tacky/store@^2.0.14":
+  version "2.0.14"
+  resolved "https://registry.yarnpkg.com/@tacky/store/-/store-2.0.14.tgz#7235b472f3b70a46b39181b8b1b5ec7838c4c217"
+  integrity sha512-ovI0WLIkHkUdij3kORTM7uiSYHzlgiSTZA0By8SdJmZuS8Do3w8tPUwwbYrVsRItNzUQolGpNEq3dkF0PN6iCg==
 
 "@types/babel__core@^7.1.7":
   version "7.1.7"
