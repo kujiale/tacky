@@ -3,7 +3,7 @@ import generateUUID from './uuid';
 import { Domain } from '../core/domain';
 
 export function isObject(value: any): boolean {
-  return value !== null && typeof value === "object"
+  return value !== null && typeof value === "object";
 }
 
 export function isDomain(value: any): boolean {
